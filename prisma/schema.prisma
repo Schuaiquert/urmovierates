@@ -1,0 +1,120 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ===================== //
+// Models
+// ===================== //
+
+model User {
+  id        String   @id @default(uuid())
+  name      String
+  email     String   @unique
+  password  String
+  role      Role     @default(USER)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  reviews   Review[]
+  favorites Favorite[]
+  resetTokens PasswordResetToken[]
+
+  @@map("users")
+}
+
+model Movie {
+  id        String   @id @default(uuid())
+  title     String
+  synopsis  String?
+  year      Int
+  poster    String?
+  trailer   String?
+  genre     String?
+  duration  Int?
+  active    Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  reviews   Review[]
+  favorites Favorite[]
+  genres    MovieGenre[]
+
+  @@map("movies")
+}
+
+model Genre {
+  id    String   @id @default(uuid())
+  name  String   @unique
+  movies MovieGenre[]
+
+  @@map("genres")
+}
+
+model MovieGenre {
+  movieId String
+  genreId String
+
+  movie Movie @relation(fields: [movieId], references: [id], onDelete: Cascade)
+  genre Genre @relation(fields: [genreId], references: [id], onDelete: Cascade)
+
+  @@id([movieId, genreId])
+  @@map("movie_genres")
+}
+
+model Favorite {
+  id        String   @id @default(uuid())
+  userId    String
+  movieId   String
+  createdAt DateTime @default(now())
+
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  movie Movie @relation(fields: [movieId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, movieId])
+  @@map("favorites")
+}
+
+model Review {
+  id        String   @id @default(uuid())
+  rating    Int
+  text      String?  @db.VarChar(1000)
+  userId    String
+  movieId   String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  movie Movie @relation(fields: [movieId], references: [id], onDelete: Restrict)
+
+  @@map("reviews")
+}
+
+model PasswordResetToken {
+  id        String   @id @default(uuid())
+  token     String   @unique
+  userId    String
+  expiresAt DateTime
+  used      Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("password_reset_tokens")
+}
+
+// ===================== //
+// Enums
+// ===================== //
+
+enum Role {
+  USER
+  ADMIN
+}

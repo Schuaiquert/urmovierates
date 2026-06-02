@@ -1,0 +1,59 @@
+version: '3.8'
+
+services:
+  app:
+    build:
+      context: ../..
+      dockerfile: docker/staging/Dockerfile
+    ports:
+      - "3001:3001"
+    environment:
+      - NODE_ENV=staging
+      - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/urmovierates
+      - REDIS_URL=redis://redis:6379
+    volumes:
+      - ../../src:/app/src
+      - ../../package.json:/app/package.json
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    command: npm run start
+    networks:
+      - urmovierates
+
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=urmovierates
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_staging_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - urmovierates
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6380:6379"
+    volumes:
+      - redis_staging_data:/data
+    networks:
+      - urmovierates
+
+networks:
+  urmovierates:
+    driver: bridge
+
+volumes:
+  postgres_staging_data:
+  redis_staging_data:

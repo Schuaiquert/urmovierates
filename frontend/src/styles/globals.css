@@ -1,0 +1,113 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --color-primary: #0ea5e9;
+  --color-dark: #0f172a;
+}
+
+body {
+  @apply bg-dark-200 text-gray-100 antialiased;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-track { @apply bg-dark-100; }
+::-webkit-scrollbar-thumb { @apply bg-gray-600 rounded-full; }
+::-webkit-scrollbar-thumb:hover { @apply bg-gray-500; }
+
+/* Utility classes */
+@layer components {
+  .card {
+    background-color: #1e293b;
+    border-radius: 0.75rem;
+    overflow: hidden;
+    transition: all 0.2s;
+  }
+
+  .card:hover {
+    box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.2);
+    transform: translateY(-2px);
+  }
+
+  .btn {
+    padding: 0.5rem 1rem;
+    border-radius: 0.5rem;
+    font-weight: 500;
+    transition: all 0.2s;
+  }
+
+  .btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  .btn-primary {
+    background-color: #0284c7;
+    color: white;
+  }
+
+  .btn-primary:hover {
+    background-color: #0369a1;
+  }
+
+  .btn-outline {
+    border: 1px solid #4b5563;
+    background-color: transparent;
+    color: #d1d5db;
+  }
+
+  .btn-outline:hover {
+    background-color: #1f2937;
+  }
+
+  .btn-ghost {
+    color: #d1d5db;
+  }
+
+  .btn-ghost:hover {
+    background-color: #1f2937;
+  }
+
+  .input {
+    width: 100%;
+    padding: 0.625rem 1rem;
+    background-color: #1e293b;
+    border: 1px solid #374151;
+    border-radius: 0.5rem;
+    color: white;
+    transition: all 0.2s;
+  }
+
+  .input:focus {
+    outline: none;
+    border-color: #0ea5e9;
+    box-shadow: 0 0 0 2px rgba(14, 165, 233, 0.2);
+  }
+
+  .input::placeholder {
+    color: #6b7280;
+  }
+
+  .input-error {
+    border-color: #ef4444;
+  }
+
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.125rem 0.5rem;
+    border-radius: 0.25rem;
+    font-size: 0.75rem;
+    font-weight: 500;
+  }
+
+  .section-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #f3f4f6;
+    margin-bottom: 1.5rem;
+  }
+}
