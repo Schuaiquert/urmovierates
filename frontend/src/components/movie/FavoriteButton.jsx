@@ -42,10 +42,13 @@ export default function FavoriteButton({ movieId, isFavorite, onToggle, size = '
       aria-label={isFavorite ? 'Remover dos favoritos' : 'Adicionar aos favoritos'}
     >
       {loading ? (
-        <Loader2 className="w-1/2 h-1/2 animate-spin" strokeWidth={2} />
+        <Loader2
+      className="w-[100%] h-[100%] animate-spin"
+       strokeWidth={2}
+    />
       ) : (
         <Heart
-          className="w-1/2 h-1/2"
+          className="w-[100%] h-[100%]"
           strokeWidth={1.75}
           fill={isFavorite ? 'currentColor' : 'none'}
         />

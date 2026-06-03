@@ -108,24 +108,41 @@ export function Badge({ children, variant = 'default', className = '' }) {
 
 // Rating Stars
 export function Rating({ value = 0, max = 5, size = 'md', interactive = false, onChange }) {
-  const sizes = { sm: 'w-3.5 h-3.5', md: 'w-4 h-4', lg: 'w-6 h-6' }
+  const sizes = {
+    sm: 'w-5 h-5',
+    md: 'w-6 h-6',
+    lg: 'w-8 h-8',
+  }
+
   return (
-    <div className={`flex gap-0.5 ${interactive ? 'cursor-pointer' : ''}`}>
+    <div className={`flex gap-1 ${interactive ? 'cursor-pointer' : ''}`}>
       {[...Array(max)].map((_, i) => {
         const filled = i < value
+
         return (
           <button
             key={i}
             type="button"
             disabled={!interactive}
             onClick={() => interactive && onChange?.(i + 1)}
-            className={`${sizes[size]} ${interactive ? 'hover:scale-110 transition-transform cursor-pointer' : 'cursor-default'} ${filled ? 'text-yellow-400' : 'text-gray-600'}`}
+            className={`
+              ${sizes[size]}
+                  bg-transparent
+                  border-none
+                  outline-none
+                  shadow-none
+                  p-0
+                    ${interactive
+                      ? 'hover:scale-110 transition-transform cursor-pointer'
+                        : 'cursor-default'}
+                        ${filled ? 'text-yellow-400' : 'text-gray-600'}
+`}
             aria-label={`${i + 1} estrelas`}
           >
             <Star
               className="w-full h-full"
               fill={filled ? 'currentColor' : 'none'}
-              strokeWidth={1.5}
+              strokeWidth={1.8}
             />
           </button>
         )

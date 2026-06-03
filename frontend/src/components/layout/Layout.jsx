@@ -76,7 +76,7 @@ export default function Layout() {
               <span>URMovieRates</span>
             </div>
             <a
-              href="https://github.com/Schuaiquert/urmovierates/blob/main/.gitignore"
+              href="https://github.com/Schuaiquert/urmovierates/blob/main/README.md"
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-dark-200/60 border border-white/5 text-gray-300 hover:text-gray-100 hover:bg-dark-200 hover:border-white/10 transition-colors text-xs font-medium"
