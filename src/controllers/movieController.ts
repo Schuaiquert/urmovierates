@@ -11,6 +11,7 @@ export class MovieController {
         active: req.query.active !== undefined ? req.query.active === 'true' : undefined,
         year: req.query.year ? Number(req.query.year) : undefined,
         genre: req.query.genre as string || undefined,
+        search: req.query.search as string || undefined,
       });
       res.json(result);
     } catch (error) {

@@ -1,28 +1,28 @@
-import { useState, useEffect, useCallback, useRef } from 'react'
-import { useSearchParams, Link } from 'react-router-dom'
-import { MovieCard, MovieFilters, FavoriteButton, AddMovieModal } from '../components/movie'
+import { useState, useEffect, useCallback } from 'react'
+import { useSearchParams, useOutletContext, Link } from 'react-router-dom'
+import { Film } from 'lucide-react'
+import { MovieCard, FilterBar, FavoriteButton } from '../components/movie'
 import { Spinner, EmptyState, ErrorState, MovieCardSkeleton, Pagination } from '../components/common'
 import { moviesAPI, favoritesAPI } from '../services/api'
 import { useAuth } from '../context/AuthContext'
 
 export default function HomePage() {
+  const { refreshKey = 0 } = useOutletContext() || {}
   const [searchParams, setSearchParams] = useSearchParams()
   const [movies, setMovies] = useState([])
   const [pagination, setPagination] = useState({ page: 1, limit: 12, total: 0, pages: 0 })
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
   const [favoriteStatus, setFavoriteStatus] = useState({})
-  const [showAddModal, setShowAddModal] = useState(false)
 
   const { user } = useAuth()
-  const isAdmin = user?.role === 'ADMIN'
 
-  // Extract params once
   const page = parseInt(searchParams.get('page') || '1') || 1
   const search = searchParams.get('search') || ''
   const year = searchParams.get('year') || ''
   const genre = searchParams.get('genre') || ''
-  const active = searchParams.get('active') !== 'false' ? true : undefined
+  const activeParam = searchParams.get('active')
+  const active = activeParam === 'true' ? true : activeParam === 'false' ? false : undefined
 
   const fetchMovies = useCallback(async () => {
     setLoading(true)
@@ -39,7 +39,6 @@ export default function HomePage() {
       setMovies(data.data)
       setPagination(data.pagination)
 
-      // Fetch favorite status for all movies
       if (user && data.data.length > 0) {
         const movieIds = data.data.map(m => m.id)
         try {
@@ -58,7 +57,7 @@ export default function HomePage() {
 
   useEffect(() => {
     fetchMovies()
-  }, [fetchMovies])
+  }, [fetchMovies, refreshKey])
 
   const handlePageChange = (newPage) => {
     const params = new URLSearchParams(searchParams)
@@ -87,31 +86,20 @@ export default function HomePage() {
 
   return (
     <div className="container mx-auto px-4 py-8">
-      {/* Page Header */}
-      <div className="mb-8 flex justify-between items-start">
-        <div>
-          <h1 className="text-3xl font-bold text-gray-100 mb-2">Filmes</h1>
-          <p className="text-gray-500">
-            {totalResults > 0
-              ? `${totalResults} filme${totalResults !== 1 ? 's' : ''} encontrado${totalResults !== 1 ? 's' : ''}`
-              : 'Nenhum filme encontrado'}
-          </p>
-        </div>
-        {isAdmin && (
-          <button
-            onClick={() => setShowAddModal(true)}
-            className="flex items-center gap-2 px-4 py-2 bg-primary-600 hover:bg-primary-700 rounded-lg text-white font-medium transition-colors"
-          >
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-            </svg>
-            Adicionar Novo
-          </button>
-        )}
-      </div>
+      {/* Title */}
+      <h1 className="text-3xl font-bold text-gray-100 text-left">Filmes</h1>
 
       {/* Filters */}
-      <MovieFilters key={showAddModal ? 'adding' : 'normal'} />
+      <div className="mt-3 mb-4">
+        <FilterBar />
+      </div>
+
+      {/* Count */}
+      <p className="text-gray-500 text-left mb-6">
+        {totalResults > 0
+          ? `${totalResults} filme${totalResults !== 1 ? 's' : ''} encontrado${totalResults !== 1 ? 's' : ''}`
+          : 'Nenhum filme encontrado'}
+      </p>
 
       {/* Content */}
       {loading ? (
@@ -124,7 +112,7 @@ export default function HomePage() {
         <ErrorState message={error} onRetry={fetchMovies} />
       ) : movies.length === 0 ? (
         <EmptyState
-          icon="🎬"
+          icon={Film}
           message={search || year ? 'Nenhum filme matches seus filtros' : 'Nenhum filme cadastrado'}
           action="Limpar filtros"
           onAction={() => setSearchParams({})}
@@ -155,16 +143,6 @@ export default function HomePage() {
             onPageChange={handlePageChange}
           />
         </>
-      )}
-
-      {showAddModal && (
-        <AddMovieModal
-          onClose={() => setShowAddModal(false)}
-          onAdd={() => {
-            fetchMovies()
-            setRefreshKey(k => k + 1)
-          }}
-        />
       )}
     </div>
   )

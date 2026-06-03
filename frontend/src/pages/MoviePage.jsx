@@ -1,5 +1,13 @@
 import { useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
+import {
+  Film,
+  ArrowLeft,
+  Pencil,
+  PlayCircle,
+  CheckCircle2,
+  MessageSquare,
+} from 'lucide-react'
 import { useMovie } from '../hooks/useMovies'
 import { useMovieReviews } from '../hooks/useReviews'
 import { useAuth } from '../context/AuthContext'
@@ -61,7 +69,7 @@ export default function MoviePage() {
   if (!movie) {
     return (
       <div className="container mx-auto px-4 py-8">
-        <EmptyState icon="🎬" message="Filme não encontrado" />
+        <EmptyState icon={Film} message="Filme não encontrado" />
       </div>
     )
   }
@@ -82,9 +90,7 @@ export default function MoviePage() {
         to="/"
         className="inline-flex items-center gap-2 text-gray-400 hover:text-primary-400 transition-colors mb-6"
       >
-        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-        </svg>
+        <ArrowLeft className="w-5 h-5" strokeWidth={1.75} />
         Voltar para filmes
       </Link>
 
@@ -92,7 +98,7 @@ export default function MoviePage() {
       <div className="grid lg:grid-cols-[300px_1fr] gap-8 mb-12">
         {/* Poster */}
         <div className="flex-shrink-0">
-          <div className="sticky top-24 aspect-[2/3] bg-dark-300 rounded-xl overflow-hidden">
+          <div className="sticky top-24 aspect-[2/3] bg-dark-300 rounded-xl overflow-hidden flex items-center justify-center">
             {poster ? (
               <img
                 src={poster}
@@ -100,9 +106,7 @@ export default function MoviePage() {
                 className="w-full h-full object-cover"
               />
             ) : (
-              <div className="w-full h-full flex items-center justify-center text-8xl">
-                🎬
-              </div>
+              <Film className="w-24 h-24 text-gray-700" strokeWidth={1} />
             )}
           </div>
         </div>
@@ -144,9 +148,7 @@ export default function MoviePage() {
           {isAdmin && (
             <div className="mb-6">
               <Button onClick={() => setShowEditModal(true)} className="flex items-center gap-2">
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                </svg>
+                <Pencil className="w-4 h-4" strokeWidth={2} />
                 Editar Filme
               </Button>
             </div>
@@ -162,10 +164,7 @@ export default function MoviePage() {
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-2 px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white rounded-lg transition-colors"
               >
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
+                <PlayCircle className="w-5 h-5" strokeWidth={1.75} />
                 Assistir no YouTube
               </a>
             </div>
@@ -176,8 +175,9 @@ export default function MoviePage() {
             <div className="mt-8">
               <ReviewForm onSubmit={handleCreateReview} loading={submitting} />
               {showSuccess && (
-                <div className="mt-4 p-3 bg-green-500/10 border border-green-500/30 rounded-lg">
-                  <p className="text-green-400 text-sm">✓ Avaliação publicada com sucesso!</p>
+                <div className="mt-4 p-3 bg-green-500/10 border border-green-500/30 rounded-lg flex items-center gap-2">
+                  <CheckCircle2 className="w-4 h-4 text-green-400 shrink-0" strokeWidth={2} />
+                  <p className="text-green-400 text-sm">Avaliação publicada com sucesso!</p>
                 </div>
               )}
             </div>
@@ -196,10 +196,12 @@ export default function MoviePage() {
             <Spinner />
           </div>
         ) : reviews.length === 0 ? (
-          <div className="text-center py-12 text-gray-500">
-            <div className="text-5xl mb-4">📝</div>
-            <p className="text-lg">Este filme ainda não tem avaliações.</p>
-            <p className="text-sm mt-1">Seja o primeiro a avaliar!</p>
+          <div className="text-center py-12">
+            <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-dark-100 text-gray-500 mb-4">
+              <MessageSquare className="w-8 h-8" strokeWidth={1.5} />
+            </div>
+            <p className="text-gray-300 text-lg">Este filme ainda não tem avaliações.</p>
+            <p className="text-gray-500 text-sm mt-1">Seja o primeiro a avaliar!</p>
           </div>
         ) : (
           <div className="space-y-4">

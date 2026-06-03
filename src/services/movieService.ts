@@ -3,7 +3,7 @@ import { CreateMovieDTO, UpdateMovieDTO, PaginationQuery } from '../types';
 import { AppError } from '../middlewares/errorHandler';
 
 export class MovieService {
-  async findAll(query: PaginationQuery & { active?: boolean; year?: number; genre?: string }) {
+  async findAll(query: PaginationQuery & { active?: boolean; year?: number; genre?: string; search?: string }) {
     const page = Math.max(1, query.page || 1);
     const limit = Math.min(100, Math.max(1, query.limit || 12));
     const skip = (page - 1) * limit;
@@ -14,9 +14,18 @@ export class MovieService {
     if (query.genre) {
       where.genres = {
         some: {
-          genre: { name: query.genre }
+          genre: { name: { equals: query.genre, mode: 'insensitive' } }
         }
       };
+    }
+    if (query.search) {
+      const term = String(query.search).trim();
+      if (term) {
+        where.OR = [
+          { title: { contains: term, mode: 'insensitive' } },
+          { synopsis: { contains: term, mode: 'insensitive' } },
+        ];
+      }
     }
 
     const [movies, total] = await Promise.all([
@@ -24,7 +33,7 @@ export class MovieService {
         where,
         skip,
         take: limit,
-        orderBy: { createdAt: 'desc' },
+        orderBy: { createdAt: 'asc' },
         include: {
           genres: { include: { genre: { select: { id: true, name: true } } } }
         }

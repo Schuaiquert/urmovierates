@@ -1,12 +1,13 @@
 import { useState } from 'react'
+import { Heart, Loader2 } from 'lucide-react'
 
 export default function FavoriteButton({ movieId, isFavorite, onToggle, size = 'md' }) {
   const [loading, setLoading] = useState(false)
 
   const sizes = {
-    sm: 'w-8 h-8 text-lg',
-    md: 'w-10 h-10 text-xl',
-    lg: 'w-12 h-12 text-2xl',
+    sm: 'w-8 h-8',
+    md: 'w-10 h-10',
+    lg: 'w-12 h-12',
   }
 
   const handleClick = async (e) => {
@@ -41,11 +42,13 @@ export default function FavoriteButton({ movieId, isFavorite, onToggle, size = '
       aria-label={isFavorite ? 'Remover dos favoritos' : 'Adicionar aos favoritos'}
     >
       {loading ? (
-        <span className="animate-pulse">⏳</span>
+        <Loader2 className="w-1/2 h-1/2 animate-spin" strokeWidth={2} />
       ) : (
-        <span className={isFavorite ? 'scale-110' : ''}>
-          {isFavorite ? '❤️' : '🤍'}
-        </span>
+        <Heart
+          className="w-1/2 h-1/2"
+          strokeWidth={1.75}
+          fill={isFavorite ? 'currentColor' : 'none'}
+        />
       )}
     </button>
   )

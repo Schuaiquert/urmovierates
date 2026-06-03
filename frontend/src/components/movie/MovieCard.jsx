@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom'
+import { Film } from 'lucide-react'
 import { Badge } from '../common'
 
 export default function MovieCard({ movie }) {
@@ -47,8 +48,8 @@ export default function MovieCard({ movie }) {
               }}
             />
           ) : (
-            <div className="w-full h-full flex items-center justify-center text-6xl">
-              🎬
+            <div className="w-full h-full flex items-center justify-center text-gray-700">
+              <Film className="w-16 h-16" strokeWidth={1} />
             </div>
           )}
 
@@ -78,7 +79,7 @@ export default function MovieCard({ movie }) {
           <div className="flex items-center gap-2 flex-wrap">
             <p className="text-gray-500 text-sm">{year}</p>
             {displayGenres.slice(0, 2).map((g, i) => (
-              <span key={i} className="text-xs px-2 py-0.5 bg-dark-300 rounded text-gray-400">
+              <span key={i} className="text-xs px-2 py-0.5 bg-dark-300 rounded text-gray-400 capitalize">
                 {g.name}
               </span>
             ))}

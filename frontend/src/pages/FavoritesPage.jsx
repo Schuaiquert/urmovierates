@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
+import { Lock, Heart } from 'lucide-react'
 import { MovieCard, FavoriteButton } from '../components/movie'
 import { EmptyState, Pagination, Spinner } from '../components/common'
 import { useAuth } from '../context/AuthContext'
@@ -57,7 +58,7 @@ export default function FavoritesPage() {
     return (
       <div className="container mx-auto px-4 py-8">
         <EmptyState
-          icon="🔐"
+          icon={Lock}
           message="Você precisa estar logado para ver seus favoritos"
           action="Voltar para Home"
           onAction={() => window.location.href = '/'}
@@ -87,7 +88,7 @@ export default function FavoritesPage() {
         <div className="text-red-400 text-center py-8">{error}</div>
       ) : movies.length === 0 ? (
         <EmptyState
-          icon="❤️"
+          icon={Heart}
           message="Você ainda não tem filmes favoritos"
           action="Explorar filmes"
           onAction={() => window.location.href = '/'}

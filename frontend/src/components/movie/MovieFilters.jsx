@@ -5,7 +5,7 @@ import { moviesAPI } from '../../services/api'
 
 export default function MovieFilters() {
   const [searchParams, setSearchParams] = useSearchParams()
-  const [search, setSearch] = useState(searchParams.get('search') || '')
+  const [search] = useState(searchParams.get('search') || '')
   const [year, setYear] = useState(searchParams.get('year') || '')
   const [genre, setGenre] = useState(searchParams.get('genre') || '')
   const [activeOnly, setActiveOnly] = useState(searchParams.get('active') !== 'false')
@@ -55,57 +55,28 @@ export default function MovieFilters() {
     }
 
     const params = new URLSearchParams()
-    if (search) params.set('search', search)
     if (year) params.set('year', year)
     if (genre) params.set('genre', genre)
     if (!activeOnly) params.set('active', 'false')
     if (searchParams.toString() !== params.toString()) {
       setSearchParams(params)
     }
-  }, [search, year, genre, activeOnly])
+  }, [year, genre, activeOnly])
 
   const handleClear = () => {
     isClearing.current = true
-    setSearch('')
     setYear('')
     setGenre('')
     setActiveOnly(true)
     setSearchParams({})
   }
 
-  const hasFilters = search || year || genre || !activeOnly
+  const hasFilters = year || genre || !activeOnly
 
   return (
     <div className="mb-8 space-y-4">
       {/* Main Filters Row */}
       <div className="flex flex-wrap items-end gap-4">
-        {/* Search Input */}
-        <div className="flex-1 min-w-[200px]">
-          <label className="block text-sm font-medium text-gray-400 mb-1.5">
-            Buscar
-          </label>
-          <div className="relative">
-            <input
-              type="text"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              placeholder="Título do filme..."
-              className="input pr-10"
-            />
-            {search && (
-              <button
-                type="button"
-                onClick={() => setSearch('')}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-300"
-              >
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                </svg>
-              </button>
-            )}
-          </div>
-        </div>
-
         {/* Genre Select */}
         <div className="w-40">
           <label className="block text-sm font-medium text-gray-400 mb-1.5">
@@ -170,7 +141,7 @@ export default function MovieFilters() {
       </div>
 
       {/* Active Filters Tags */}
-      {hasFilters && (
+      {(hasFilters || search) && (
         <div className="flex flex-wrap gap-2">
           {search && (
             <span className="inline-flex items-center gap-1 px-3 py-1 bg-dark-100 rounded-full text-sm text-gray-300">

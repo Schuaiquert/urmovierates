@@ -1,3 +1,9 @@
+import {
+  Star,
+  AlertTriangle,
+  Inbox,
+} from 'lucide-react'
+
 // Spinner
 export function Spinner({ size = 'md', className = '' }) {
   const sizes = {
@@ -102,29 +108,39 @@ export function Badge({ children, variant = 'default', className = '' }) {
 
 // Rating Stars
 export function Rating({ value = 0, max = 5, size = 'md', interactive = false, onChange }) {
-  const sizes = { sm: 'text-sm', md: 'text-lg', lg: 'text-2xl' }
+  const sizes = { sm: 'w-3.5 h-3.5', md: 'w-4 h-4', lg: 'w-6 h-6' }
   return (
     <div className={`flex gap-0.5 ${interactive ? 'cursor-pointer' : ''}`}>
-      {[...Array(max)].map((_, i) => (
-        <button
-          key={i}
-          type="button"
-          disabled={!interactive}
-          onClick={() => interactive && onChange?.(i + 1)}
-          className={`${sizes[size]} ${interactive ? 'hover:scale-110 transition-transform cursor-pointer' : 'cursor-default'} ${i < value ? 'text-yellow-400' : 'text-gray-600'}`}
-        >
-          ★
-        </button>
-      ))}
+      {[...Array(max)].map((_, i) => {
+        const filled = i < value
+        return (
+          <button
+            key={i}
+            type="button"
+            disabled={!interactive}
+            onClick={() => interactive && onChange?.(i + 1)}
+            className={`${sizes[size]} ${interactive ? 'hover:scale-110 transition-transform cursor-pointer' : 'cursor-default'} ${filled ? 'text-yellow-400' : 'text-gray-600'}`}
+            aria-label={`${i + 1} estrelas`}
+          >
+            <Star
+              className="w-full h-full"
+              fill={filled ? 'currentColor' : 'none'}
+              strokeWidth={1.5}
+            />
+          </button>
+        )
+      })}
     </div>
   )
 }
 
 // Empty State
-export function EmptyState({ icon = '🎬', message = 'Nenhum item encontrado', action, onAction }) {
+export function EmptyState({ icon: Icon = Inbox, message = 'Nenhum item encontrado', action, onAction }) {
   return (
     <div className="text-center py-16">
-      <div className="text-6xl mb-4">{icon}</div>
+      <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-dark-100 text-gray-500 mb-4">
+        <Icon className="w-8 h-8" strokeWidth={1.5} />
+      </div>
       <p className="text-gray-400 text-lg mb-4">{message}</p>
       {action && onAction && (
         <Button variant="outline" onClick={onAction}>
@@ -139,7 +155,9 @@ export function EmptyState({ icon = '🎬', message = 'Nenhum item encontrado', 
 export function ErrorState({ message = 'Algo deu errado', onRetry }) {
   return (
     <div className="text-center py-12">
-      <div className="text-5xl mb-4">⚠️</div>
+      <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-red-500/10 text-red-400 mb-4">
+        <AlertTriangle className="w-8 h-8" strokeWidth={1.5} />
+      </div>
       <p className="text-red-400 text-lg mb-4">{message}</p>
       {onRetry && (
         <Button variant="outline" onClick={onRetry}>

@@ -1,5 +1,6 @@
 export { default as MovieCard } from './MovieCard'
 export { default as MovieFilters } from './MovieFilters'
+export { default as FilterBar } from './FilterBar'
 export { default as FavoriteButton } from './FavoriteButton'
 export { EditMovieModal } from './EditMovieModal'
 export { AddMovieModal } from './AddMovieModal'

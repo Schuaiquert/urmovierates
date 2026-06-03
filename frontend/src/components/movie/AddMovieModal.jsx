@@ -47,8 +47,14 @@ export function AddMovieModal({ onClose, onAdd }) {
   }
 
   return (
-    <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4">
-      <div className="bg-dark-100 rounded-xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
+    <div
+      className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4"
+      onClick={onClose}
+    >
+      <div
+        className="bg-dark-100 rounded-xl w-full max-w-lg max-h-[90vh] overflow-y-auto"
+        onClick={(e) => e.stopPropagation()}
+      >
         <div className="p-6 border-b border-gray-800">
           <h2 className="text-xl font-bold text-gray-100">Adicionar Novo Filme</h2>
         </div>
@@ -86,18 +92,18 @@ export function AddMovieModal({ onClose, onAdd }) {
               onChange={handleChange}
               className="w-full bg-dark-300 text-gray-100 rounded-lg px-3 py-2 border border-gray-600 focus:border-primary-500 focus:outline-none min-h-[120px]"
             >
-              <option value="ação">Ação</option>
-              <option value="animação">Animação</option>
-              <option value="aventura">Aventura</option>
-              <option value="comédia">Comédia</option>
-              <option value="drama">Drama</option>
-              <option value="fantasia">Fantasia</option>
-              <option value="ficção científica">Ficção Científica</option>
-              <option value="horror">Horror</option>
-              <option value="romance">Romance</option>
-              <option value="suspense">Suspense</option>
-              <option value="terror">Terror</option>
-              <option value="thriller">Thriller</option>
+              <option value="Ação">Ação</option>
+              <option value="Animação">Animação</option>
+              <option value="Aventura">Aventura</option>
+              <option value="Comédia">Comédia</option>
+              <option value="Drama">Drama</option>
+              <option value="Fantasia">Fantasia</option>
+              <option value="Ficção Científica">Ficção Científica</option>
+              <option value="Horror">Horror</option>
+              <option value="Romance">Romance</option>
+              <option value="Suspense">Suspense</option>
+              <option value="Terror">Terror</option>
+              <option value="Thriller">Thriller</option>
             </select>
             <p className="text-xs text-gray-500 mt-1">Segure Ctrl (ou Cmd) para selecionar múltiplos gêneros</p>
           </div>
@@ -133,7 +139,7 @@ export function AddMovieModal({ onClose, onAdd }) {
           />
 
           <div className="flex gap-3 pt-4">
-            <Button type="button" variant="outline" onClick={onClose} className="flex-1">
+            <Button type="button" variant="primary" onClick={onClose} className="flex-1">
               Cancelar
             </Button>
             <Button type="submit" loading={loading} className="flex-1">

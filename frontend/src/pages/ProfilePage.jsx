@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useAuth } from '../context/AuthContext'
 import { useNavigate } from 'react-router-dom'
+import { LogOut, Trash2, Pencil } from 'lucide-react'
 
 export default function ProfilePage() {
   const { user, logout, deleteAccount, updateUser } = useAuth()
@@ -101,10 +102,9 @@ export default function ProfilePage() {
                       onClick={() => { setShowEditName(true); setNewName(user.name || '') }}
                       className="p-1 hover:text-primary-400 text-gray-400 transition-colors"
                       title="Editar nome"
+                      aria-label="Editar nome"
                     >
-                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                      </svg>
+                      <Pencil className="w-4 h-4" strokeWidth={1.75} />
                     </button>
                   </div>
                 )}
@@ -130,7 +130,7 @@ export default function ProfilePage() {
               onClick={handleLogout}
               className="w-full flex items-center gap-3 px-4 py-3 bg-gray-800 hover:bg-gray-700 rounded-lg transition-colors text-left"
             >
-              <span className="text-xl">🚪</span>
+              <LogOut className="w-5 h-5 text-gray-400" strokeWidth={1.75} />
               <div>
                 <p className="text-gray-100 font-medium">Sair da conta</p>
                 <p className="text-gray-400 text-sm">Faça logout para sair</p>
@@ -141,7 +141,7 @@ export default function ProfilePage() {
               onClick={() => setShowDeleteConfirm(true)}
               className="w-full flex items-center gap-3 px-4 py-3 bg-red-500/10 hover:bg-red-500/20 rounded-lg transition-colors text-left border border-red-500/30"
             >
-              <span className="text-xl">🗑️</span>
+              <Trash2 className="w-5 h-5 text-red-400" strokeWidth={1.75} />
               <div>
                 <p className="text-red-400 font-medium">Excluir conta</p>
                 <p className="text-gray-400 text-sm">Remover sua conta permanentemente</p>
