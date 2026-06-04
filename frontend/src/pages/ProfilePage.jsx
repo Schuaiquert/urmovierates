@@ -136,7 +136,14 @@ export default function ProfilePage() {
                 <p className="text-gray-400 text-sm">Faça logout para sair</p>
               </div>
             </button>
-
+            {/* Danger Zone */}
+              {/* <div className="bg-red-500/5 border border-red-500/20 rounded-xl p-6"> */}
+                <h2 className="text-lg font-semibold text-red-400 mb-2">Zona de Perigo</h2>
+                <p className="text-gray-400 text-sm mb-4">
+                  A exclusão da conta é permanente e não pode ser desfeita. Todos os seus dados,
+                  incluindo avaliações e favoritos, serão removidos.
+                </p>
+              {/* </div> */}
             <button
               onClick={() => setShowDeleteConfirm(true)}
               className="w-full flex items-center gap-3 px-4 py-3 bg-red-500/10 hover:bg-red-500/20 rounded-lg transition-colors text-left border border-red-500/30"
@@ -150,14 +157,7 @@ export default function ProfilePage() {
           </div>
         </div>
 
-        {/* Danger Zone */}
-        <div className="bg-red-500/5 border border-red-500/20 rounded-xl p-6">
-          <h2 className="text-lg font-semibold text-red-400 mb-2">Zona de Perigo</h2>
-          <p className="text-gray-400 text-sm mb-4">
-            A exclusão da conta é permanente e não pode ser desfeita. Todos os seus dados,
-            incluindo avaliações e favoritos, serão removidos.
-          </p>
-        </div>
+        
       </div>
 
       {/* Delete Confirmation Modal */}
