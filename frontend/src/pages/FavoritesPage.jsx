@@ -23,7 +23,7 @@ export default function FavoritesPage() {
     setError(null)
 
     try {
-      const { data } = await favoritesAPI.getUserFavorites(user.id, { page, limit: 12 })
+      const { data } = await favoritesAPI.getUserFavorites({ page, limit: 12 })
       setMovies(data.data)
       setPagination(data.pagination)
     } catch (err) {
@@ -46,7 +46,7 @@ export default function FavoritesPage() {
     if (!user) return
 
     try {
-      await favoritesAPI.remove(movieId, user.id)
+      await favoritesAPI.remove(movieId)
       setMovies(prev => prev.filter(m => m.id !== movieId))
       setPagination(prev => ({ ...prev, total: prev.total - 1 }))
     } catch (err) {

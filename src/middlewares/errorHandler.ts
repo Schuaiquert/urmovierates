@@ -2,14 +2,18 @@ import { Request, Response, NextFunction } from 'express';
 import logger from '../utils/logger';
 
 export class AppError extends Error {
-  constructor(public message: string, public statusCode: number = 400) {
+  constructor(
+    public message: string,
+    public statusCode: number = 400,
+    public code?: string
+  ) {
     super(message);
   }
 }
 
 export class NotFoundError extends AppError {
   constructor(resource: string) {
-    super(`${resource} not found`, 404);
+    super(`${resource} not found`, 404, 'NOT_FOUND');
   }
 }
 
@@ -22,7 +26,10 @@ export default function errorHandler(
   logger.error(`Error: ${err.message}`, { stack: err.stack });
 
   if (err instanceof AppError) {
-    return res.status(err.statusCode).json({ error: err.message });
+    return res.status(err.statusCode).json({
+      error: err.message,
+      code: err.code,
+    });
   }
 
   if (err.message.includes('not found')) {

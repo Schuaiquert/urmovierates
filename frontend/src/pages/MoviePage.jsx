@@ -30,7 +30,7 @@ export default function MoviePage() {
     if (!user) return
     setSubmitting(true)
     try {
-      await createReview({ ...reviewData, userId: user.id })
+      await createReview(reviewData)
       setShowSuccess(true)
       setTimeout(() => setShowSuccess(false), 3000)
     } catch (err) {

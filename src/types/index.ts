@@ -1,17 +1,9 @@
 import { Role } from '@prisma/client';
 
-export interface CreateUserDTO {
-  name: string;
-  email: string;
-  password: string;
-  role?: Role;
-}
-
-export interface UpdateUserDTO {
+export interface UpdateMeDTO {
   name?: string;
   email?: string;
   password?: string;
-  role?: Role;
 }
 
 export interface CreateMovieDTO {
@@ -78,6 +70,8 @@ export interface ResetPasswordDTO {
 
 export interface AuthResponse {
   token: string;
+  accessToken: string;
+  refreshToken: string;
   user: {
     id: string;
     email: string;

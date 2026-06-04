@@ -29,4 +29,8 @@ export const authValidators = {
     body('password').isLength({ min: 6 }).withMessage('Password must be at least 6 characters'),
     validate,
   ],
+  refresh: [
+    body('refreshToken').notEmpty().withMessage('Refresh token is required'),
+    validate,
+  ],
 };

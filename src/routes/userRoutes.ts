@@ -26,18 +26,6 @@ const router = Router();
  *         updatedAt:
  *           type: string
  *           format: date-time
- *     CreateUser:
- *       type: object
- *       required: [name, email, password]
- *       properties:
- *         name:
- *           type: string
- *         email:
- *           type: string
- *         password:
- *           type: string
- *         role:
- *           type: string
  */
 
 /**
@@ -56,23 +44,8 @@ const router = Router();
  *     responses:
  *       200:
  *         description: Paginated list of users
- *   post:
- *     summary: Create a new user
- *     tags: [Users]
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             $ref: '#/components/schemas/CreateUser'
- *     responses:
- *       201:
- *         description: User created
- *       400:
- *         description: Validation error
  */
 router.get('/', userController.getAll.bind(userController));
-router.post('/', userValidators.create, validate, userController.create.bind(userController));
 
 /**
  * @swagger
@@ -90,37 +63,7 @@ router.post('/', userValidators.create, validate, userController.create.bind(use
  *         description: User found
  *       404:
  *         description: User not found
- *   put:
- *     summary: Update user
- *     tags: [Users]
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         schema: { type: string }
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             $ref: '#/components/schemas/CreateUser'
- *     responses:
- *       200:
- *         description: User updated
- *   delete:
- *     summary: Delete user
- *     tags: [Users]
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         schema: { type: string }
- *     responses:
- *       204:
- *         description: User deleted
  */
 router.get('/:id', userValidators.getById, validate, userController.getById.bind(userController));
-router.put('/:id', userValidators.update, validate, userController.update.bind(userController));
-router.delete('/:id', userValidators.delete, validate, userController.delete.bind(userController));
 
 export default router;

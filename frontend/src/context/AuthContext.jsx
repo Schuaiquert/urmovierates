@@ -1,5 +1,5 @@
 import { createContext, useContext, useState, useEffect } from 'react'
-import { authAPI, usersAPI } from '../services/api'
+import { authAPI } from '../services/api'
 
 const AuthContext = createContext(null)
 
@@ -38,13 +38,13 @@ export function AuthProvider({ children }) {
     window.location.href = '/login'
   }
 
-  const deleteAccount = async (userId) => {
-    await authAPI.deleteAccount(userId)
+  const deleteAccount = async () => {
+    await authAPI.deleteMe()
     logout()
   }
 
-  const updateUser = async (userId, data) => {
-    const response = await usersAPI.update(userId, data)
+  const updateUser = async (data) => {
+    const response = await authAPI.updateMe(data)
     const updatedUser = response.data.data
     localStorage.setItem('user', JSON.stringify(updatedUser))
     setUser(updatedUser)

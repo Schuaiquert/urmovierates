@@ -10,21 +10,12 @@ export const validate = (req: Request, res: Response, next: NextFunction) => {
 };
 
 export const userValidators = {
-  create: [
-    body('name').trim().notEmpty().withMessage('Name is required').isLength({ max: 100 }),
-    body('email').trim().isEmail().withMessage('Valid email is required'),
-    body('password').isLength({ min: 6 }).withMessage('Password must be at least 6 characters'),
-    body('role').optional().isIn(['USER', 'ADMIN']).withMessage('Role must be USER or ADMIN'),
-  ],
-  update: [
-    param('id').notEmpty().withMessage('User ID is required'),
+  updateMe: [
     body('name').optional().trim().isLength({ min: 1, max: 100 }),
-    body('email').optional().trim().isEmail(),
-    body('password').optional().isLength({ min: 6 }),
-    body('role').optional().isIn(['USER', 'ADMIN']),
+    body('email').optional().trim().isEmail().withMessage('Valid email is required'),
+    body('password').optional().isLength({ min: 6 }).withMessage('Password must be at least 6 characters'),
   ],
   getById: [param('id').notEmpty().withMessage('User ID is required')],
-  delete: [param('id').notEmpty().withMessage('User ID is required')],
 };
 
 export const movieValidators = {
@@ -53,7 +44,6 @@ export const reviewValidators = {
   create: [
     body('rating').isInt({ min: 1, max: 5 }).withMessage('Rating must be between 1 and 5'),
     body('text').optional().trim().isLength({ max: 1000 }),
-    body('userId').isUUID().withMessage('Valid userId is required'),
     body('movieId').notEmpty().withMessage('movieId is required'),
   ],
   update: [

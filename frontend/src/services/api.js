@@ -48,25 +48,25 @@ export const reviewsAPI = {
 export const usersAPI = {
   getAll: (params = {}) => api.get('/users', { params }),
   getById: (id) => api.get(`/users/${id}`),
-  create: (data) => api.post('/users', data),
-  update: (id, data) => api.put(`/users/${id}`, data),
-  delete: (id) => api.delete(`/users/${id}`),
 }
 
 export const favoritesAPI = {
-  getUserFavorites: (userId, params = {}) => api.get('/favorites', { params: { userId, ...params } }),
-  getStatus: (userId, movieIds) => api.get('/favorites/status', { params: { userId, movieIds: movieIds.join(',') } }),
-  add: (movieId, userId) => api.post(`/favorites/${movieId}`, { userId }),
-  remove: (movieId, userId) => api.delete(`/favorites/${movieId}`, { params: { userId } }),
-  toggle: (movieId, userId) => api.post(`/favorites/${movieId}/toggle`, { userId }),
+  getUserFavorites: (params = {}) => api.get('/favorites', { params }),
+  getStatus: (movieIds) => api.get('/favorites/status', { params: { movieIds: movieIds.join(',') } }),
+  add: (movieId) => api.post(`/favorites/${movieId}`),
+  remove: (movieId) => api.delete(`/favorites/${movieId}`),
+  toggle: (movieId) => api.post(`/favorites/${movieId}/toggle`),
 }
 
 export const authAPI = {
   register: (data) => api.post('/auth/register', data),
   login: (data) => api.post('/auth/login', data),
+  refresh: (refreshToken) => api.post('/auth/refresh', { refreshToken }),
+  me: () => api.get('/auth/me'),
+  updateMe: (data) => api.put('/auth/me', data),
+  deleteMe: () => api.delete('/auth/me'),
   forgotPassword: (data) => api.post('/auth/forgot-password', data),
   resetPassword: (data) => api.post('/auth/reset-password', data),
-  deleteAccount: (userId) => api.delete(`/users/${userId}`),
 }
 
 export default api

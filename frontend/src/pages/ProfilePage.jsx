@@ -23,7 +23,7 @@ export default function ProfilePage() {
     }
     setIsUpdatingName(true)
     try {
-      await updateUser(user.id, { name: newName.trim() })
+      await updateUser({ name: newName.trim() })
       setShowEditName(false)
     } catch (error) {
       console.error('Failed to update name:', error)
@@ -35,7 +35,7 @@ export default function ProfilePage() {
   const handleDeleteAccount = async () => {
     setIsDeleting(true)
     try {
-      await deleteAccount(user.id)
+      await deleteAccount()
       navigate('/login')
     } catch (error) {
       console.error('Failed to delete account:', error)

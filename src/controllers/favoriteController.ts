@@ -1,11 +1,12 @@
 import { Request, Response, NextFunction } from 'express';
 import { favoriteService } from '../services/favoriteService';
+import { AppError } from '../middlewares/errorHandler';
 
 export class FavoriteController {
   async getUserFavorites(req: Request, res: Response, next: NextFunction) {
     try {
-      const userId = req.params.userId || req.query.userId as string;
-      const result = await favoriteService.findByUser(userId, {
+      if (!req.userId) throw new AppError('Authentication required', 401, 'AUTH_MISSING');
+      const result = await favoriteService.findByUser(req.userId, {
         page: Number(req.query.page) || 1,
         limit: Number(req.query.limit) || 12,
       });
@@ -17,9 +18,9 @@ export class FavoriteController {
 
   async add(req: Request, res: Response, next: NextFunction) {
     try {
-      const { movieId } = req.body;
-      const userId = req.body.userId || req.params.userId;
-      const result = await favoriteService.create(userId, movieId);
+      if (!req.userId) throw new AppError('Authentication required', 401, 'AUTH_MISSING');
+      const movieId = req.params.movieId;
+      const result = await favoriteService.create(req.userId, movieId);
       res.status(201).json({ data: result });
     } catch (error) {
       next(error);
@@ -28,9 +29,9 @@ export class FavoriteController {
 
   async remove(req: Request, res: Response, next: NextFunction) {
     try {
-      const { movieId } = req.params;
-      const userId = req.params.userId || req.body.userId;
-      const result = await favoriteService.delete(userId, movieId);
+      if (!req.userId) throw new AppError('Authentication required', 401, 'AUTH_MISSING');
+      const movieId = req.params.movieId;
+      const result = await favoriteService.delete(req.userId, movieId);
       res.json({ data: result });
     } catch (error) {
       next(error);
@@ -39,9 +40,9 @@ export class FavoriteController {
 
   async toggle(req: Request, res: Response, next: NextFunction) {
     try {
-      const { movieId } = req.params;
-      const userId = req.body.userId || req.params.userId;
-      const result = await favoriteService.toggle(userId, movieId);
+      if (!req.userId) throw new AppError('Authentication required', 401, 'AUTH_MISSING');
+      const movieId = req.params.movieId;
+      const result = await favoriteService.toggle(req.userId, movieId);
       res.json({ data: result });
     } catch (error) {
       next(error);
@@ -50,13 +51,13 @@ export class FavoriteController {
 
   async getStatus(req: Request, res: Response, next: NextFunction) {
     try {
-      const userId = req.query.userId as string;
+      if (!req.userId) throw new AppError('Authentication required', 401, 'AUTH_MISSING');
       const movieIds = req.query.movieIds as string;
-      if (!userId || !movieIds) {
-        return res.status(400).json({ error: 'userId and movieIds are required' });
+      if (!movieIds) {
+        return res.status(400).json({ error: 'movieIds is required', code: 'VALIDATION_ERROR' });
       }
-      const ids = movieIds.split(',');
-      const result = await favoriteService.getStatus(userId, ids);
+      const ids = movieIds.split(',').filter(Boolean);
+      const result = await favoriteService.getStatus(req.userId, ids);
       res.json({ data: result });
     } catch (error) {
       next(error);

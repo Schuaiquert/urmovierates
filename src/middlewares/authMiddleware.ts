@@ -1,63 +1,84 @@
 import { Request, Response, NextFunction } from 'express';
+import {
+  verifyAccessToken,
+  JsonWebTokenError,
+  TokenExpiredError,
+  NotBeforeError,
+  JwtPayload,
+} from '../utils/jwt';
 import { AppError } from './errorHandler';
-import { authService } from '../services/authService';
-import { JwtPayload } from '../utils/jwt';
 
 declare global {
   namespace Express {
     interface Request {
       user?: JwtPayload;
+      userId?: string;
     }
   }
 }
 
-export const authenticate = (req: Request, res: Response, next: NextFunction) => {
-  const authHeader = req.headers.authorization;
+const BEARER_PATTERN = /^Bearer\s+(.+)$/i;
 
-  if (!authHeader || !authHeader.startsWith('Bearer ')) {
-    return next(new AppError('Authentication required', 401));
+function extractBearerToken(authHeader: string | undefined): string | null {
+  if (!authHeader) return null;
+  const match = authHeader.trim().match(BEARER_PATTERN);
+  if (!match) return null;
+  const token = match[1].trim();
+  return token.length > 0 ? token : null;
+}
+
+export function authenticate(req: Request, _res: Response, next: NextFunction): void {
+  const token = extractBearerToken(req.headers.authorization);
+
+  if (!token) {
+    return next(new AppError('Authentication required', 401, 'AUTH_MISSING'));
   }
-
-  const token = authHeader.split(' ')[1];
 
   try {
-    const payload = authService.getUserFromToken(token);
+    const payload = verifyAccessToken(token);
     req.user = payload;
-    next();
-  } catch (error) {
-    next(error);
-  }
-};
-
-export const optionalAuth = (req: Request, res: Response, next: NextFunction) => {
-  const authHeader = req.headers.authorization;
-
-  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    req.userId = payload.userId;
     return next();
+  } catch (error) {
+    if (error instanceof TokenExpiredError) {
+      return next(new AppError('Token expired', 401, 'TOKEN_EXPIRED'));
+    }
+    if (error instanceof NotBeforeError) {
+      return next(new AppError('Token not yet valid', 401, 'TOKEN_INACTIVE'));
+    }
+    if (error instanceof JsonWebTokenError) {
+      return next(new AppError('Invalid token', 401, 'TOKEN_INVALID'));
+    }
+    return next(new AppError('Authentication failed', 401, 'AUTH_FAILED'));
   }
+}
 
-  const token = authHeader.split(' ')[1];
+export function optionalAuth(req: Request, _res: Response, next: NextFunction): void {
+  const token = extractBearerToken(req.headers.authorization);
+  if (!token) return next();
 
   try {
-    const payload = authService.getUserFromToken(token);
+    const payload = verifyAccessToken(token);
     req.user = payload;
+    req.userId = payload.userId;
   } catch {
-    // Ignore invalid tokens for optional auth
+    // optional auth: ignore invalid tokens
   }
 
-  next();
-};
+  return next();
+}
 
-export const requireRole = (...roles: string[]) => {
-  return (req: Request, res: Response, next: NextFunction) => {
+export function requireRole(...roles: string[]) {
+  return (req: Request, _res: Response, next: NextFunction): void => {
     if (!req.user) {
-      return next(new AppError('Authentication required', 401));
+      return next(new AppError('Authentication required', 401, 'AUTH_MISSING'));
     }
-
-    if (!roles.includes(req.user.role)) {
-      return next(new AppError('Insufficient permissions', 403));
+    if (roles.length > 0 && !roles.includes(req.user.role)) {
+      return next(new AppError('Insufficient permissions', 403, 'FORBIDDEN'));
     }
-
-    next();
+    return next();
   };
-};
+}
+
+export const auth = { authenticate, optionalAuth, requireRole };
+export default auth;

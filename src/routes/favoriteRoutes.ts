@@ -1,9 +1,12 @@
 import { Router } from 'express';
 import { favoriteController } from '../controllers/favoriteController';
-import { validate } from '../middlewares/validators';
+import { authenticate } from '../middlewares/authMiddleware';
 import { body, param, query } from 'express-validator';
+import { validate } from '../middlewares/validators';
 
 const router = Router();
+
+router.use(authenticate);
 
 /**
  * @swagger
@@ -27,13 +30,11 @@ const router = Router();
  * @swagger
  * /api/favorites:
  *   get:
- *     summary: Get user favorites
+ *     summary: Get the authenticated user's favorites
  *     tags: [Favorites]
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
- *       - in: query
- *         name: userId
- *         required: true
- *         schema: { type: string }
  *       - in: query
  *         name: page
  *         schema: { type: integer }
@@ -43,11 +44,16 @@ const router = Router();
  *     responses:
  *       200:
  *         description: Paginated list of favorite movies
+ *       401:
+ *         $ref: '#/components/schemas/Unauthorized'
  */
 router.get(
   '/',
-  [query('userId').isUUID().withMessage('Valid userId is required')],
-  validate,
+  [
+    query('page').optional().isInt({ min: 1 }),
+    query('limit').optional().isInt({ min: 1, max: 100 }),
+    validate,
+  ],
   favoriteController.getUserFavorites.bind(favoriteController)
 );
 
@@ -55,13 +61,11 @@ router.get(
  * @swagger
  * /api/favorites/status:
  *   get:
- *     summary: Get favorite status for multiple movies
+ *     summary: Get favorite status for multiple movies for the authenticated user
  *     tags: [Favorites]
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
- *       - in: query
- *         name: userId
- *         required: true
- *         schema: { type: string }
  *       - in: query
  *         name: movieIds
  *         required: true
@@ -70,14 +74,18 @@ router.get(
  *     responses:
  *       200:
  *         description: Map of movieId to favorite status
+ *       400:
+ *         description: movieIds is required
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *       401:
+ *         $ref: '#/components/schemas/Unauthorized'
  */
 router.get(
   '/status',
-  [
-    query('userId').isUUID().withMessage('Valid userId is required'),
-    query('movieIds').notEmpty().withMessage('movieIds is required'),
-  ],
-  validate,
+  [query('movieIds').notEmpty().withMessage('movieIds is required'), validate],
   favoriteController.getStatus.bind(favoriteController)
 );
 
@@ -85,36 +93,30 @@ router.get(
  * @swagger
  * /api/favorites/{movieId}:
  *   post:
- *     summary: Add movie to favorites
+ *     summary: Add movie to authenticated user's favorites
  *     tags: [Favorites]
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: movieId
  *         required: true
  *         schema: { type: string }
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             required: [userId]
- *             properties:
- *               userId:
- *                 type: string
  *     responses:
  *       201:
  *         description: Movie added to favorites
+ *       401:
+ *         $ref: '#/components/schemas/Unauthorized'
  *       409:
  *         description: Already favorited
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
  */
 router.post(
   '/:movieId',
-  [
-    param('movieId').notEmpty().withMessage('movieId is required'),
-    body('userId').isUUID().withMessage('Valid userId is required'),
-  ],
-  validate,
+  [param('movieId').notEmpty().withMessage('movieId is required'), validate],
   favoriteController.add.bind(favoriteController)
 );
 
@@ -122,30 +124,30 @@ router.post(
  * @swagger
  * /api/favorites/{movieId}:
  *   delete:
- *     summary: Remove movie from favorites
+ *     summary: Remove movie from authenticated user's favorites
  *     tags: [Favorites]
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: movieId
  *         required: true
  *         schema: { type: string }
- *       - in: query
- *         name: userId
- *         required: true
- *         schema: { type: string }
  *     responses:
  *       200:
  *         description: Movie removed from favorites
+ *       401:
+ *         $ref: '#/components/schemas/Unauthorized'
  *       404:
  *         description: Favorite not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
  */
 router.delete(
   '/:movieId',
-  [
-    param('movieId').notEmpty().withMessage('movieId is required'),
-    query('userId').isUUID().withMessage('Valid userId is required'),
-  ],
-  validate,
+  [param('movieId').notEmpty().withMessage('movieId is required'), validate],
   favoriteController.remove.bind(favoriteController)
 );
 
@@ -153,34 +155,24 @@ router.delete(
  * @swagger
  * /api/favorites/{movieId}/toggle:
  *   post:
- *     summary: Toggle favorite status
+ *     summary: Toggle favorite status for the authenticated user
  *     tags: [Favorites]
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: movieId
  *         required: true
  *         schema: { type: string }
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             required: [userId]
- *             properties:
- *               userId:
- *                 type: string
  *     responses:
  *       200:
  *         description: Toggle result with favorited status
+ *       401:
+ *         $ref: '#/components/schemas/Unauthorized'
  */
 router.post(
   '/:movieId/toggle',
-  [
-    param('movieId').notEmpty().withMessage('movieId is required'),
-    body('userId').isUUID().withMessage('Valid userId is required'),
-  ],
-  validate,
+  [param('movieId').notEmpty().withMessage('movieId is required'), validate],
   favoriteController.toggle.bind(favoriteController)
 );
 

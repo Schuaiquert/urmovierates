@@ -42,7 +42,7 @@ export default function HomePage() {
       if (user && data.data.length > 0) {
         const movieIds = data.data.map(m => m.id)
         try {
-          const { data: favData } = await favoritesAPI.getStatus(user.id, movieIds)
+          const { data: favData } = await favoritesAPI.getStatus(movieIds)
           setFavoriteStatus(favData.data)
         } catch (e) {
           // Silently fail favorites - not critical
@@ -73,7 +73,7 @@ export default function HomePage() {
     }
 
     try {
-      const { data } = await favoritesAPI.toggle(movieId, user.id)
+      const { data } = await favoritesAPI.toggle(movieId)
       setFavoriteStatus(prev => ({ ...prev, [movieId]: data.data.favorited }))
       return data.data
     } catch (err) {

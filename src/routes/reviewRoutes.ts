@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import { reviewController } from '../controllers/reviewController';
 import { reviewValidators, validate } from '../middlewares/validators';
+import { authenticate, requireRole } from '../middlewares/authMiddleware';
 
 const router = Router();
 
@@ -31,15 +32,13 @@ const router = Router();
  *           format: date-time
  *     CreateReview:
  *       type: object
- *       required: [rating, userId, movieId]
+ *       required: [rating, movieId]
  *       properties:
  *         rating:
  *           type: integer
  *           minimum: 1
  *           maximum: 5
  *         text:
- *           type: string
- *         userId:
  *           type: string
  *         movieId:
  *           type: string
@@ -77,6 +76,8 @@ const router = Router();
  *   post:
  *     summary: Create a new review
  *     tags: [Reviews]
+ *     security:
+ *       - bearerAuth: []
  *     requestBody:
  *       required: true
  *       content:
@@ -88,9 +89,21 @@ const router = Router();
  *         description: Review created
  *       400:
  *         description: Validation error or already reviewed
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *       401:
+ *         $ref: '#/components/schemas/Unauthorized'
  */
 router.get('/', reviewController.getAll.bind(reviewController));
-router.post('/', reviewValidators.create, validate, reviewController.create.bind(reviewController));
+router.post(
+  '/',
+  authenticate,
+  reviewValidators.create,
+  validate,
+  reviewController.create.bind(reviewController)
+);
 
 /**
  * @swagger
@@ -145,6 +158,8 @@ router.get('/movies/:movieId', reviewValidators.getByMovie, validate, reviewCont
  *   put:
  *     summary: Update review
  *     tags: [Reviews]
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: id
@@ -159,9 +174,15 @@ router.get('/movies/:movieId', reviewValidators.getByMovie, validate, reviewCont
  *     responses:
  *       200:
  *         description: Review updated
+ *       401:
+ *         $ref: '#/components/schemas/Unauthorized'
+ *       403:
+ *         $ref: '#/components/schemas/Forbidden'
  *   delete:
  *     summary: Delete review
  *     tags: [Reviews]
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: id
@@ -170,9 +191,27 @@ router.get('/movies/:movieId', reviewValidators.getByMovie, validate, reviewCont
  *     responses:
  *       204:
  *         description: Review deleted
+ *       401:
+ *         $ref: '#/components/schemas/Unauthorized'
+ *       403:
+ *         $ref: '#/components/schemas/Forbidden'
  */
 router.get('/:id', reviewValidators.getById, validate, reviewController.getById.bind(reviewController));
-router.put('/:id', reviewValidators.update, validate, reviewController.update.bind(reviewController));
-router.delete('/:id', reviewValidators.delete, validate, reviewController.delete.bind(reviewController));
+router.put(
+  '/:id',
+  authenticate,
+  requireRole('USER', 'ADMIN'),
+  reviewValidators.update,
+  validate,
+  reviewController.update.bind(reviewController)
+);
+router.delete(
+  '/:id',
+  authenticate,
+  requireRole('USER', 'ADMIN'),
+  reviewValidators.delete,
+  validate,
+  reviewController.delete.bind(reviewController)
+);
 
 export default router;

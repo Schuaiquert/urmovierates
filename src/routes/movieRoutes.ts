@@ -101,6 +101,8 @@ const router = Router();
  *   post:
  *     summary: Create a new movie
  *     tags: [Movies]
+ *     security:
+ *       - bearerAuth: []
  *     requestBody:
  *       required: true
  *       content:
@@ -112,6 +114,14 @@ const router = Router();
  *         description: Movie created
  *       400:
  *         description: Validation error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *       401:
+ *         $ref: '#/components/schemas/Unauthorized'
+ *       403:
+ *         $ref: '#/components/schemas/Forbidden'
  */
 router.get('/', movieController.getAll.bind(movieController));
 router.post('/', authenticate, requireRole('ADMIN'), movieValidators.create, validate, movieController.create.bind(movieController));
@@ -146,6 +156,8 @@ router.get('/genres', movieController.getGenres.bind(movieController));
  *   post:
  *     summary: Create a new genre
  *     tags: [Movies]
+ *     security:
+ *       - bearerAuth: []
  *     requestBody:
  *       required: true
  *       content:
@@ -159,8 +171,12 @@ router.get('/genres', movieController.getGenres.bind(movieController));
  *     responses:
  *       201:
  *         description: Genre created
+ *       401:
+ *         $ref: '#/components/schemas/Unauthorized'
+ *       403:
+ *         $ref: '#/components/schemas/Forbidden'
  */
-router.post('/genres', movieController.createGenre.bind(movieController));
+router.post('/genres', authenticate, requireRole('ADMIN'), movieController.createGenre.bind(movieController));
 
 /**
  * @swagger
@@ -178,9 +194,15 @@ router.post('/genres', movieController.createGenre.bind(movieController));
  *         description: Movie found
  *       404:
  *         description: Movie not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
  *   put:
  *     summary: Update movie
  *     tags: [Movies]
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: id
@@ -195,9 +217,15 @@ router.post('/genres', movieController.createGenre.bind(movieController));
  *     responses:
  *       200:
  *         description: Movie updated
+ *       401:
+ *         $ref: '#/components/schemas/Unauthorized'
+ *       403:
+ *         $ref: '#/components/schemas/Forbidden'
  *   delete:
  *     summary: Delete movie
  *     tags: [Movies]
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: id
@@ -206,6 +234,10 @@ router.post('/genres', movieController.createGenre.bind(movieController));
  *     responses:
  *       204:
  *         description: Movie deleted
+ *       401:
+ *         $ref: '#/components/schemas/Unauthorized'
+ *       403:
+ *         $ref: '#/components/schemas/Forbidden'
  */
 router.get('/:id', movieValidators.getById, validate, movieController.getById.bind(movieController));
 router.put('/:id', authenticate, requireRole('ADMIN'), movieValidators.update, validate, movieController.update.bind(movieController));

@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import { authService } from '../services/authService';
+import { AppError } from '../middlewares/errorHandler';
 
 export class AuthController {
   async register(req: Request, res: Response, next: NextFunction) {
@@ -17,6 +18,46 @@ export class AuthController {
       const { email, password } = req.body;
       const result = await authService.login({ email, password });
       res.json({ data: result });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async refresh(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { refreshToken } = req.body;
+      const result = await authService.refresh(refreshToken);
+      res.json({ data: result });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async me(req: Request, res: Response, next: NextFunction) {
+    try {
+      if (!req.userId) throw new AppError('Authentication required', 401, 'AUTH_MISSING');
+      const user = await authService.me(req.userId);
+      res.json({ data: user });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async updateMe(req: Request, res: Response, next: NextFunction) {
+    try {
+      if (!req.userId) throw new AppError('Authentication required', 401, 'AUTH_MISSING');
+      const user = await authService.updateMe(req.userId, req.body);
+      res.json({ data: user });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async deleteMe(req: Request, res: Response, next: NextFunction) {
+    try {
+      if (!req.userId) throw new AppError('Authentication required', 401, 'AUTH_MISSING');
+      await authService.deleteMe(req.userId);
+      res.status(204).send();
     } catch (error) {
       next(error);
     }
