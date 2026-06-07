@@ -36,7 +36,7 @@ export class ReviewService {
   }
 
   async findByUserAndMovie(userId: string, movieId: string) {
-    return prisma.review.findUnique({ where: { userId_movieId: { userId, movieId } } });
+    return prisma.review.findFirst({ where: { userId, movieId } });
   }
 
   async create(data: CreateReviewDTO) {

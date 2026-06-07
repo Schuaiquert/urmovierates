@@ -8,6 +8,8 @@ export const metadata: Metadata = {
   description: 'Veja todos os filmes cadastrados, filtre por gênero, ano ou status e descubra novas avaliações.',
 };
 
+const API_BASE = process.env.NEXT_PUBLIC_API_BASE ?? 'http://localhost:3000';
+
 async function fetchInitialMovies(searchParams: Record<string, string>) {
   const params: Record<string, unknown> = { page: searchParams.page ?? '1', limit: 12 };
   for (const k of ['search', 'year', 'genre'] as const) {
@@ -15,8 +17,12 @@ async function fetchInitialMovies(searchParams: Record<string, string>) {
   }
   if (searchParams.active) params.active = searchParams.active === 'true';
   try {
-    const { data } = await moviesAPI.getAll(params);
-    return { movies: data.data as Movie[], pagination: data.pagination as Pagination | undefined };
+    const url = new URL('/api/movies', API_BASE);
+    for (const [k, v] of Object.entries(params)) url.searchParams.set(k, String(v));
+    const res = await fetch(url.toString(), { cache: 'no-store' });
+    if (!res.ok) return { movies: [] as Movie[], pagination: undefined as Pagination | undefined };
+    const json = (await res.json()) as { data: Movie[]; pagination?: Pagination };
+    return { movies: json.data, pagination: json.pagination };
   } catch {
     return { movies: [] as Movie[], pagination: undefined as Pagination | undefined };
   }
