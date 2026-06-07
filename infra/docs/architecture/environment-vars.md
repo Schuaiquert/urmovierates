@@ -19,7 +19,7 @@
 ```env
 # Application
 NODE_ENV=development
-PORT=3000
+PORT=3001
 
 # Database
 DATABASE_URL=postgresql://postgres:postgres@localhost:5432/urmovierates
@@ -41,7 +41,10 @@ LOG_LEVEL=debug
 
 ```env
 # CORS
-CORS_ORIGIN=http://localhost:3000
+CORS_ORIGIN=http://localhost:3001
+
+# Swagger server URL (opcional — fallback usa http://localhost:${PORT})
+# API_URL=http://localhost:3001
 
 # Rate Limiting
 RATE_LIMIT_WINDOW_MS=900000

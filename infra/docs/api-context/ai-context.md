@@ -99,7 +99,7 @@ Contém:
 
 | Ambiente | Porta | Finalidade |
 |----------|-------|------------|
-| dev | 3000 | Desenvolvimento |
+| dev | 3001 | Desenvolvimento (host) — container expõe 3000, ver sessão 2026-06-06 |
 | staging | 3001 | Homologação |
 | prod | 3002 | Produção |
 

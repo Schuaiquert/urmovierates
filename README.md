@@ -22,7 +22,7 @@ API para um sistema web de avaliação de filmes onde:
 
 | Ambiente | Porta | Finalidade |
 |----------|-------|------------|
-| dev | 3000 | Desenvolvimento local |
+| dev | 3001 | Desenvolvimento local (ver `infra/docs/sessions/port-conflict-and-swagger-fix-2026-06-06.md`) |
 | staging | 3001 | Homologação |
 | prod | 3002 | Produção |
 
@@ -84,7 +84,7 @@ docker exec -it <container_id> npx prisma migrate deploy
 |----------|-----------|---------|
 | `DATABASE_URL` | URL do PostgreSQL | `postgresql://user:pass@localhost:5432/db` |
 | `JWT_SECRET` | Chave secreta para JWT | `sua-chave-secreta` |
-| `PORT` | Porta do servidor | `3000` |
+| `PORT` | Porta do servidor | `3001` (dev) |
 | `NODE_ENV` | Ambiente | `development` / `staging` / `production` |
 
 ### Scripts Úteis
@@ -118,7 +118,7 @@ O frontend estará disponível em `http://localhost:5173` (Vite default).
 
 | Variável | Descrição | Padrão |
 |----------|-----------|--------|
-| `VITE_API_URL` | URL da API backend | `http://localhost:3000` |
+| `VITE_API_URL` | URL da API backend | `http://localhost:3001` (dev) |
 
 ### Endpoints da API
 
@@ -130,6 +130,12 @@ O frontend estará disponível em `http://localhost:5173` (Vite default).
 | POST | `/api/auth/login` | Login |
 | GET | `/api/genres` | Listar gêneros |
 | GET | `/api/years` | Listar anos disponíveis |
+
+### Documentação Interativa (Swagger UI)
+
+Disponível em **http://localhost:3001/api-docs** durante o desenvolvimento local.
+
+A URL base exibida no botão "Try it out" é montada dinamicamente a partir de `API_URL` (override) ou `http://localhost:${PORT}`. O server URL fica registrado em `src/config/swagger.ts`.
 
 ## Estrutura Principal
 

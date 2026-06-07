@@ -16,7 +16,7 @@ Sistema REST API para avaliação de filmes com Node.js, TypeScript e Docker.
 
 | Ambiente | Porta | Descrição |
 |---------|-------|-----------|
-| dev | 3000 | Desenvolvimento local |
+| dev | 3001 | Desenvolvimento local (host) — ver `infra/docs/sessions/port-conflict-and-swagger-fix-2026-06-06.md` |
 | staging | 3001 | Homologação |
 | prod | 3002 | Produção |
 
