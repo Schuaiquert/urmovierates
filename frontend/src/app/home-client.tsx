@@ -30,11 +30,11 @@ export function HomeClient({ initialMovies, initialPagination, initialParams }: 
 
   const refetch = useCallback(async () => {
     setLoading(true); setError(null);
-    const params: Record<string, unknown> = { page: searchParams.get('page') ?? '1', limit: 12 };
-    const search = searchParams.get('search'); if (search) params.search = search;
-    const year = searchParams.get('year'); if (year) params.year = year;
-    const genre = searchParams.get('genre'); if (genre) params.genre = genre;
-    const active = searchParams.get('active');
+    const params: Record<string, unknown> = { page: searchParams?.get('page') ?? '1', limit: 12 };
+    const search = searchParams?.get('search'); if (search) params.search = search;
+    const year = searchParams?.get('year'); if (year) params.year = year;
+    const genre = searchParams?.get('genre'); if (genre) params.genre = genre;
+    const active = searchParams?.get('active');
     if (active === 'true') params.active = true;
     else if (active === 'false') params.active = false;
     try {
@@ -51,9 +51,9 @@ export function HomeClient({ initialMovies, initialPagination, initialParams }: 
   useEffect(() => { refetch(); }, [refetch, refreshKey]);
 
   const onPage = (p: number) => {
-    const params = new URLSearchParams(searchParams.toString());
+    const params = new URLSearchParams(searchParams?.toString() ?? '');
     params.set('page', String(p));
-    router.replace(`${pathname}?${params.toString()}`, { scroll: false });
+    router.replace(`${pathname ?? '/'}?${params.toString()}`, { scroll: false });
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
@@ -73,7 +73,7 @@ export function HomeClient({ initialMovies, initialPagination, initialParams }: 
           icon={Film}
           message={initialParams.search || initialParams.year ? 'Nenhum filme matches seus filtros' : 'Nenhum filme cadastrado'}
           action="Limpar filtros"
-          onAction={() => router.replace(pathname)}
+          onAction={() => router.replace(pathname ?? '/')}
         />
       ) : (
         <>

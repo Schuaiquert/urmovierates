@@ -34,11 +34,11 @@ export function FilterBar() {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
-  const [year, setYear] = useState(searchParams.get('year') ?? '');
-  const [genre, setGenre] = useState(searchParams.get('genre') ?? '');
+  const [year, setYear] = useState(searchParams?.get('year') ?? '');
+  const [genre, setGenre] = useState(searchParams?.get('genre') ?? '');
   const [status, setStatus] = useState(
-    searchParams.get('active') === 'false' ? 'inactive'
-      : searchParams.get('active') === 'true' ? 'active' : 'all');
+    searchParams?.get('active') === 'false' ? 'inactive'
+      : searchParams?.get('active') === 'true' ? 'active' : 'all');
   const [years, setYears] = useState<number[]>([]);
   const [genres, setGenres] = useState<{ id: string; name: string }[]>([]);
   const [loading, setLoading] = useState(true);
@@ -72,22 +72,22 @@ export function FilterBar() {
   }, [open]);
 
   const apply = () => {
-    const params = new URLSearchParams(searchParams.toString());
+    const params = new URLSearchParams(searchParams?.toString() ?? '');
     if (year) params.set('year', year); else params.delete('year');
     if (genre) params.set('genre', genre); else params.delete('genre');
     if (status === 'active') params.set('active', 'true');
     else if (status === 'inactive') params.set('active', 'false');
     else params.delete('active');
     params.delete('page');
-    router.replace(`${pathname}?${params.toString()}`, { scroll: false });
+    router.replace(`${pathname ?? '/'}?${params.toString()}`, { scroll: false });
     setOpen(false);
   };
 
   const clear = () => {
     setYear(''); setGenre(''); setStatus('all');
-    const params = new URLSearchParams(searchParams.toString());
+    const params = new URLSearchParams(searchParams?.toString() ?? '');
     params.delete('year'); params.delete('genre'); params.delete('active'); params.delete('page');
-    router.replace(`${pathname}?${params.toString()}`, { scroll: false });
+    router.replace(`${pathname ?? '/'}?${params.toString()}`, { scroll: false });
     setOpen(false);
   };
 

@@ -15,7 +15,7 @@ export function PublicLayout({ children }: { children: React.ReactNode }) {
   const { user } = useAuth();
   const isAdmin = user?.role === 'ADMIN';
 
-  const [search, setSearch] = useState(searchParams.get('search') ?? '');
+  const [search, setSearch] = useState(searchParams?.get('search') ?? '');
   const [debounced, setDebounced] = useState(search);
   const isFirst = useRef(true);
 
@@ -30,20 +30,20 @@ export function PublicLayout({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     if (isFirst.current) { isFirst.current = false; return; }
-    const params = new URLSearchParams(searchParams.toString());
+    const params = new URLSearchParams(searchParams?.toString() ?? '');
     if (debounced) params.set('search', debounced); else params.delete('search');
     params.delete('page');
-    router.replace(`${pathname}?${params.toString()}`, { scroll: false });
+    router.replace(`${pathname ?? '/'}?${params.toString()}`, { scroll: false });
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [debounced]);
 
   const onSearchKey = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter') {
       setDebounced(search);
-      const params = new URLSearchParams(searchParams.toString());
+      const params = new URLSearchParams(searchParams?.toString() ?? '');
       if (search.trim()) params.set('search', search); else params.delete('search');
       params.delete('page');
-      router.replace(`${pathname}?${params.toString()}`, { scroll: false });
+      router.replace(`${pathname ?? '/'}?${params.toString()}`, { scroll: false });
     }
   };
 
