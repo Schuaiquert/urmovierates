@@ -1,6 +1,19 @@
 import axios, { AxiosError, AxiosInstance } from 'axios';
 import type { ApiResponse, AuthPayload, Movie, Review, ReviewStats, User, Genre } from '@/types';
 
+export interface MovieCreateInput {
+  title: string;
+  year?: number;
+  synopsis?: string;
+  poster?: string;
+  trailer?: string;
+  duration?: number;
+  active?: boolean;
+  genres: { name: string }[];
+}
+
+export type MovieUpdateInput = Partial<MovieCreateInput>;
+
 const api: AxiosInstance = axios.create({
   baseURL: '/api',
   timeout: 10000,
@@ -27,8 +40,8 @@ export const moviesAPI = {
   getAll: (params: Record<string, unknown> = {}) =>
     api.get<ApiResponse<Movie[]>>('/movies', { params }),
   getById: (id: string) => api.get<ApiResponse<Movie>>(`/movies/${id}`),
-  create: (data: Partial<Movie>) => api.post<ApiResponse<Movie>>('/movies', data),
-  update: (id: string, data: Partial<Movie>) => api.put<ApiResponse<Movie>>(`/movies/${id}`, data),
+  create: (data: MovieCreateInput) => api.post<ApiResponse<Movie>>('/movies', data),
+  update: (id: string, data: MovieUpdateInput) => api.put<ApiResponse<Movie>>(`/movies/${id}`, data),
   remove: (id: string) => api.delete(`/movies/${id}`),
   getGenres: () => api.get<ApiResponse<Genre[]>>('/movies/genres'),
   getYears: () => api.get<ApiResponse<number[]>>('/movies/years'),

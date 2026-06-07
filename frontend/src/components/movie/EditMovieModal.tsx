@@ -1,26 +1,31 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Modal } from '@/components/common/Modal';
 import { Button } from '@/components/common/Button';
 import { MovieFormFields, type MovieFormValues } from './MovieFormFields';
 import { moviesAPI } from '@/services/api';
 import type { AxiosError } from 'axios';
+import type { Movie } from '@/types';
 
-interface Props { open: boolean; onClose: () => void; onAdded: () => void; }
+interface Props { open: boolean; movie: Movie; onClose: () => void; onUpdated: () => void; }
 
-const EMPTY: MovieFormValues = { title: '', year: '', synopsis: '', poster: '', trailer: '', genres: [], duration: '' };
-
-export function AddMovieModal({ open, onClose, onAdded }: Props) {
-  const [values, setValues] = useState<MovieFormValues>(EMPTY);
+export function EditMovieModal({ open, movie, onClose, onUpdated }: Props) {
+  const [values, setValues] = useState<MovieFormValues>({
+    title: movie.title, year: String(movie.year), synopsis: movie.synopsis ?? '',
+    poster: movie.poster ?? '', trailer: movie.trailer ?? '',
+    genres: movie.genres.map((g) => g.name), duration: movie.duration ? String(movie.duration) : '',
+  });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+
+  useEffect(() => { if (open) setError(''); }, [open]);
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(''); setLoading(true);
     try {
-      await moviesAPI.create({
+      await moviesAPI.update(movie.id, {
         title: values.title,
         year: parseInt(values.year) || undefined,
         duration: parseInt(values.duration) || undefined,
@@ -29,16 +34,16 @@ export function AddMovieModal({ open, onClose, onAdded }: Props) {
         trailer: values.trailer || undefined,
         genres: values.genres.map((name) => ({ name })),
       });
-      setValues(EMPTY);
-      onAdded();
+      onUpdated();
+      onClose();
     } catch (e) {
       const err = e as AxiosError<{ error?: string }>;
-      setError(err.response?.data?.error ?? err.message ?? 'Erro ao adicionar filme');
+      setError(err.response?.data?.error ?? err.message ?? 'Erro ao atualizar filme');
     } finally { setLoading(false); }
   };
 
   return (
-    <Modal open={open} onClose={onClose} title="Adicionar Novo Filme" size="md">
+    <Modal open={open} onClose={onClose} title="Editar Filme" size="md">
       <form onSubmit={submit} className="p-6 space-y-4">
         {error && (
           <div className="p-3 bg-red-500/10 border border-red-500/30 rounded-lg">
@@ -48,7 +53,7 @@ export function AddMovieModal({ open, onClose, onAdded }: Props) {
         <MovieFormFields values={values} onChange={setValues} />
         <div className="flex gap-3 pt-4">
           <Button type="button" variant="outline" onClick={onClose} className="flex-1">Cancelar</Button>
-          <Button type="submit" loading={loading} className="flex-1">Adicionar</Button>
+          <Button type="submit" loading={loading} className="flex-1">Salvar</Button>
         </div>
       </form>
     </Modal>

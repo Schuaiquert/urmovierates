@@ -4,10 +4,10 @@ export interface Movie {
   id: string;
   title: string;
   year: number;
-  synopsis?: string | null;
-  poster?: string | null;
-  trailer?: string | null;
-  duration?: number | null;
+  synopsis?: string;
+  poster?: string;
+  trailer?: string;
+  duration?: number;
   active: boolean;
   createdAt: string;
   genres: Genre[];
