@@ -99,7 +99,7 @@ npx prisma studio # Abrir interface do Prisma
 
 ## Frontend
 
-O frontend React está em `frontend/`. Para iniciá-lo:
+O frontend Next.js está em `frontend/`. Para iniciá-lo:
 
 ```bash
 # 1. Entrar no diretório do frontend
@@ -112,13 +112,15 @@ npm install
 npm run dev
 ```
 
-O frontend estará disponível em `http://localhost:5173` (Vite default).
+O frontend estará disponível em **http://localhost:5173**. Em dev, requisições para `/api/*` são reescritas para o backend em `http://localhost:3001` via `next.config.mjs` (`rewrites()`).
 
-### Variáveis do Frontend
-
-| Variável | Descrição | Padrão |
-|----------|-----------|--------|
-| `VITE_API_URL` | URL da API backend | `http://localhost:3001` (dev) |
+### Stack do Frontend
+- Next.js 14 (App Router) + React 18
+- TypeScript
+- Tailwind CSS 3
+- Framer Motion (transições)
+- `lucide-react` (ícones)
+- `axios` (HTTP)
 
 ### Endpoints da API
 
