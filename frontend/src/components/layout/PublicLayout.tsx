@@ -1,14 +1,32 @@
 'use client';
 
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { Navbar } from './Navbar';
 import { Footer } from './Footer';
 import { AddMovieModal } from '@/components/movie/AddMovieModal';
 import { useAuth } from '@/contexts/AuthContext';
+import { LayoutContext } from '@/contexts/LayoutContext';
 import { SEARCH_DEBOUNCE_MS } from '@/lib/constants';
 
 export function PublicLayout({ children }: { children: React.ReactNode }) {
+  return (
+    <div className="min-h-screen flex flex-col bg-dark-200">
+      <Suspense fallback={<div className="h-16 bg-dark-100/80 border-b border-white/5" />}>
+        <PublicLayoutChrome>{children}</PublicLayoutChrome>
+      </Suspense>
+    </div>
+  );
+}
+
+/**
+ * Inner client component that actually uses `useSearchParams` for the
+ * debounced search box. It is wrapped in <Suspense> by PublicLayout so
+ * static prerender of auth/client-only routes can complete without
+ * triggering the `useSearchParams() should be wrapped in a suspense
+ * boundary` build error.
+ */
+function PublicLayoutChrome({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -49,21 +67,25 @@ export function PublicLayout({ children }: { children: React.ReactNode }) {
 
   const refresh = useCallback(() => setRefreshKey((k) => k + 1), []);
 
+  const layoutValue = useMemo(() => ({ refreshKey }), [refreshKey]);
+
   return (
-    <div className="min-h-screen flex flex-col bg-dark-200">
+    <>
       <Navbar
         search={search}
         setSearch={setSearch}
         onSearchSubmit={onSearchKey}
         onAddMovie={isAdmin ? () => setShowAdd(true) : undefined}
       />
-      <main className="flex-1" data-refresh-key={refreshKey}>{children}</main>
+      <main className="flex-1" data-refresh-key={refreshKey}>
+        <LayoutContext.Provider value={layoutValue}>{children}</LayoutContext.Provider>
+      </main>
       <Footer />
       <AddMovieModal
         open={showAdd}
         onClose={() => setShowAdd(false)}
         onAdded={() => { setShowAdd(false); refresh(); }}
       />
-    </div>
+    </>
   );
 }

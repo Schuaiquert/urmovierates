@@ -6,6 +6,8 @@ import type { Movie, Review, ReviewStats } from '@/types';
 
 interface PageProps { params: { id: string }; }
 
+export const dynamic = 'force-dynamic';
+
 const API_BASE = process.env.NEXT_PUBLIC_API_BASE ?? 'http://localhost:3000';
 
 async function fetchMovie(id: string): Promise<{ movie?: Movie; reviews: Review[]; stats: ReviewStats }> {

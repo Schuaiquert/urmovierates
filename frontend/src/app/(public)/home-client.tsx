@@ -1,12 +1,13 @@
 'use client';
 
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useSearchParams, useRouter, usePathname } from 'next/navigation';
 import { Film } from 'lucide-react';
 import { MovieGrid } from '@/components/movie/MovieGrid';
 import { FilterBar } from '@/components/movie/FilterBar';
 import { Pagination, EmptyState, ErrorState } from '@/components/common';
 import { moviesAPI } from '@/services/api';
+import { useLayoutContext } from '@/contexts/LayoutContext';
 import type { Movie, Pagination as PaginationT } from '@/types';
 
 interface Props {
@@ -19,22 +20,27 @@ export function HomeClient({ initialMovies, initialPagination, initialParams }: 
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
+  const { refreshKey } = useLayoutContext();
+
   const [movies, setMovies] = useState<Movie[]>(initialMovies);
   const [pagination, setPagination] = useState<PaginationT>(initialPagination ?? { page: 1, limit: 12, total: 0, pages: 0 });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const refreshKey = typeof document !== 'undefined'
-    ? document.querySelector('main')?.getAttribute('data-refresh-key') ?? '0'
-    : '0';
+  // Track the last params we already fetched for, so the effect only fires
+  // when the URL (or refreshKey) actually changes. Without this, the App
+  // Router returns a fresh searchParams ref on every render and would
+  // re-fetch on every keystroke / re-render.
+  const lastKey = useRef<string>('');
 
-  const refetch = useCallback(async () => {
+  const refetch = useCallback(async (paramsString: string) => {
     setLoading(true); setError(null);
-    const params: Record<string, unknown> = { page: searchParams?.get('page') ?? '1', limit: 12 };
-    const search = searchParams?.get('search'); if (search) params.search = search;
-    const year = searchParams?.get('year'); if (year) params.year = year;
-    const genre = searchParams?.get('genre'); if (genre) params.genre = genre;
-    const active = searchParams?.get('active');
+    const url = new URLSearchParams(paramsString);
+    const params: Record<string, unknown> = { page: url.get('page') ?? '1', limit: 12 };
+    const search = url.get('search'); if (search) params.search = search;
+    const year = url.get('year'); if (year) params.year = year;
+    const genre = url.get('genre'); if (genre) params.genre = genre;
+    const active = url.get('active');
     if (active === 'true') params.active = true;
     else if (active === 'false') params.active = false;
     try {
@@ -46,9 +52,16 @@ export function HomeClient({ initialMovies, initialPagination, initialParams }: 
       setError(err.userMessage ?? 'Erro ao carregar filmes');
     }
     finally { setLoading(false); }
-  }, [searchParams]);
+  }, []);
 
-  useEffect(() => { refetch(); }, [refetch, refreshKey]);
+  const paramsKey = searchParams?.toString() ?? '';
+
+  useEffect(() => {
+    const key = `${paramsKey}|${refreshKey}`;
+    if (lastKey.current === key) return;
+    lastKey.current = key;
+    refetch(paramsKey);
+  }, [paramsKey, refreshKey, refetch]);
 
   const onPage = (p: number) => {
     const params = new URLSearchParams(searchParams?.toString() ?? '');
@@ -67,7 +80,7 @@ export function HomeClient({ initialMovies, initialPagination, initialParams }: 
         {total > 0 ? `${total} filme${total !== 1 ? 's' : ''} encontrado${total !== 1 ? 's' : ''}` : 'Nenhum filme encontrado'}
       </p>
       {error ? (
-        <ErrorState message={error} onRetry={refetch} />
+        <ErrorState message={error} onRetry={() => refetch(paramsKey)} />
       ) : movies.length === 0 ? (
         <EmptyState
           icon={Film}

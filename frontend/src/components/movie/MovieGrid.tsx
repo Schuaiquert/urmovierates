@@ -14,7 +14,9 @@ export function MovieGrid({ movies, loading }: { movies: Movie[]; loading: boole
   const { favorites, toggle } = useFavoriteStatus(user ? ids : []);
   const [pending, setPending] = useState<Record<string, boolean>>({});
 
-  useEffect(() => { setPending({}); }, [ids.join(',')]);
+  const idsKey = ids.join(',');
+
+  useEffect(() => { setPending({}); }, [idsKey]);
 
   const onToggle = async (movieId: string) => {
     if (!user) { window.alert('Faça login para favoritar filmes'); return; }
