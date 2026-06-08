@@ -1,7 +1,26 @@
 # Registo de Atividades
 
 **Projeto:** urmovierates
-**Última atualização:** 2026-06-04
+**Última atualização:** 2026-06-08
+
+---
+
+## 2026-06-08 — Fix loop home-client + Suspense no PublicLayout
+
+| Atividade | Detalhes |
+|-----------|----------|
+| Diagnóstico do loop de refetch | `home-client.tsx` lia `refreshKey` via `document.querySelector` e dependia de `useCallback(refetch, [searchParams])` — ref de `searchParams` mudava a cada render no App Router, gerando re-fetch em ciclo |
+| Novo `LayoutContext` | `frontend/src/contexts/LayoutContext.tsx` expõe `refreshKey: number` como valor React real; substitui DOM scraping |
+| `home-client` reescrito | `paramsKey = searchParams?.toString()` (string estável) + `lastKey` ref dedupe + `refetch(paramsString)` desacoplado da ref |
+| Suspense no `PublicLayout` | Extraído `PublicLayoutChrome` interno + `<Suspense fallback={navbar skeleton}>`; destrava `next build` para `/favorites /login /register /profile` (todas static) |
+| Limpeza | `idsKey` em `MovieGrid` (limpa warning exhaustive-deps), `*.tsbuildinfo` no `.gitignore`, remoção de `frontend/src/app/loading.tsx` (duplicado) |
+| `dynamic = 'force-dynamic'` | Aplicado em `(public)/page.tsx` e `(public)/movie/[id]/page.tsx` (já estava pendente) |
+
+Sessão detalhada: `infra/docs/sessions/frontend-nextjs-loop-fix-2026-06-08.md`
+ADR: `infra/docs/api-context/decisions/ADR-008-nextjs-suspense-e-searchparams.md`
+Pattern: `infra/docs/architecture/layout-context-refresh-pattern.md`
+
+Verificações: `npm run type-check` ✓ · `npm run lint` ✓ · `npm run build` ✓ 8/8 páginas · smoke test HTTP em 11 rotas (todas 200, 14-50ms) · bundle servido contém código novo, sem `document.querySelector`
 
 ---
 
