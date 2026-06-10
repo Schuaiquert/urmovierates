@@ -86,6 +86,25 @@ docker exec -it <container_id> npx prisma migrate deploy
 | `JWT_SECRET` | Chave secreta para JWT | `sua-chave-secreta` |
 | `PORT` | Porta do servidor | `3001` (dev) |
 | `NODE_ENV` | Ambiente | `development` / `staging` / `production` |
+| `API_KEY` | Segredo do header `X-API-Key` (backend) | `openssl rand -hex 32` |
+
+### Frontend setup
+
+O cliente Next.js precisa do mesmo `API_KEY` que o backend, exposto como
+`NEXT_PUBLIC_API_KEY`. Copie `frontend/.env.example` para `frontend/.env.local`
+e defina o valor com a mesma chave do backend (uma chave por ambiente).
+
+```bash
+cd frontend
+cp .env.example .env.local
+# cole o mesmo valor de API_KEY do backend
+echo "NEXT_PUBLIC_API_KEY=*** >> .env.local
+```
+
+Variáveis `NEXT_PUBLIC_*` são inline no bundle no build, então reinicie
+`npm run dev` após alterar. O valor é seguro de enviar no bundle do cliente
+— é o mesmo segredo compartilhado que o backend já aceita em header público;
+rotacione no backend e reimplante os dois lados para rolar.
 
 ### Scripts Úteis
 
