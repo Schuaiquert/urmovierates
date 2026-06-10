@@ -73,13 +73,6 @@ api.interceptors.request.use((config: InternalAxiosRequestConfig) => {
   // contract to be the same as the original code (which also skipped).
   if (typeof window === 'undefined') return config;
 
-  // Temporary debug log — remove after verifying headers land in DevTools.
-  // Set NEXT_PUBLIC_API_DEBUG=1 in .env.local to enable.
-  if (process.env.NEXT_PUBLIC_API_DEBUG === '1') {
-    // eslint-disable-next-line no-console
-    console.debug('[api] outgoing', config.method?.toUpperCase(), config.url);
-  }
-
   // Axios v1 normalizes headers via AxiosHeaders; use the helper to avoid the
   // deprecated `config.headers[xxx] = ...` pattern and keep casing consistent.
   const headers = AxiosHeaders.from(config.headers);
