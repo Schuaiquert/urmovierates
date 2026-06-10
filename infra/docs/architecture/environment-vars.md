@@ -53,3 +53,18 @@ RATE_LIMIT_MAX_REQUESTS=100
 # Redis Cache TTL
 CACHE_TTL=3600
 ```
+
+---
+
+## API Key (`X-API-Key`)
+
+Todas as rotas protegidas exigem o header `X-API-Key` com o valor desta variável.
+Rotas públicas (auth/login, auth/register, auth/refresh, auth/forgot-password,
+auth/reset-password, /health, /api-docs) **não** exigem.
+
+```env
+# Gerar com: openssl rand -hex 32
+API_KEY=generate-with-openssl-rand-hex-32-min-16-chars
+```
+
+A aplicação **não inicializa** se `API_KEY` estiver ausente ou com menos de 16 caracteres.
