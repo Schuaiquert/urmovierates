@@ -31,7 +31,7 @@ async function main() {
 
   // Create genres
   const genreNames = ['Ação', 'Comédia', 'Drama', 'Ficção Científica', 'Terror', 'Romance', 'Animação'];
-  const createdGenres: Record<string, string> = {};
+  const createdGenres: Record<string, number> = {};
 
   for (const name of genreNames) {
     const genre = await prisma.genre.upsert({
@@ -43,9 +43,17 @@ async function main() {
   }
 
   // Create sample movies with genres
-  const movies = [
+  // NOTE: Post Wave A.2, movies.id is now Int autoincrement. The original seed used slug
+  // strings ("the-shawshank-redemption") as UUIDs — those are gone. We now upsert by title.
+  const movies: Array<{
+    title: string;
+    synopsis: string;
+    year: number;
+    poster: string;
+    trailer: string;
+    genres: string[];
+  }> = [
     {
-      id: 'the-shawshank-redemption',
       title: 'The Shawshank Redemption',
       synopsis: 'Two imprisoned men bond over a number of years, finding solace and eventual redemption through acts of common decency.',
       year: 1994,
@@ -54,7 +62,6 @@ async function main() {
       genres: ['Drama'],
     },
     {
-      id: 'the-godfather',
       title: 'The Godfather',
       synopsis: 'The aging patriarch of an organized crime dynasty transfers control of his clandestine empire to his reluctant son.',
       year: 1972,
@@ -63,7 +70,6 @@ async function main() {
       genres: ['Drama', 'Ação'],
     },
     {
-      id: 'the-dark-knight',
       title: 'The Dark Knight',
       synopsis: 'When the menace known as the Joker wreaks havoc and chaos on the people of Gotham, Batman must accept one of the greatest psychological and physical tests of his ability to fight injustice.',
       year: 2008,
@@ -72,7 +78,6 @@ async function main() {
       genres: ['Ação', 'Drama', 'Ficção Científica'],
     },
     {
-      id: 'pulp-fiction',
       title: 'Pulp Fiction',
       synopsis: 'The lives of two mob hitmen, a boxer, a gangster and his wife, and a pair of diner bandits intertwine in four tales of violence and redemption.',
       year: 1994,
@@ -81,7 +86,6 @@ async function main() {
       genres: ['Drama', 'Comédia'],
     },
     {
-      id: 'forrest-gump',
       title: 'Forrest Gump',
       synopsis: 'The presidencies of Kennedy and Johnson, the Vietnam War, the Watergate scandal and other historical events unfold from the perspective of an Alabama man with an IQ of 75.',
       year: 1994,
@@ -93,11 +97,12 @@ async function main() {
 
   for (const movie of movies) {
     const { genres, ...movieData } = movie;
-    const created = await prisma.movie.upsert({
-      where: { id: movie.id },
-      update: {},
-      create: movieData,
-    });
+    // Post Wave A.2, movies.id is Int autoincrement and title is NOT @unique.
+    // Use findFirst + create/update instead of upsert to avoid changing the schema.
+    const existing = await prisma.movie.findFirst({ where: { title: movieData.title } });
+    const created = existing
+      ? await prisma.movie.update({ where: { id: existing.id }, data: movieData })
+      : await prisma.movie.create({ data: movieData });
 
     // Connect genres using upsert for each relation
     for (const genreName of genres) {
