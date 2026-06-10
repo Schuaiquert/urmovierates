@@ -15,7 +15,7 @@ datasource db {
 // ===================== //
 
 model User {
-  id        String   @id @default(uuid())
+  id        Int      @id @default(autoincrement())
   name      String
   email     String   @unique
   password  String
@@ -23,15 +23,15 @@ model User {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  reviews   Review[]
-  favorites Favorite[]
+  reviews     Review[]
+  favorites   Favorite[]
   resetTokens PasswordResetToken[]
 
   @@map("users")
 }
 
 model Movie {
-  id        String   @id @default(uuid())
+  id        Int      @id @default(autoincrement())
   title     String
   synopsis  String?
   year      Int
@@ -51,16 +51,16 @@ model Movie {
 }
 
 model Genre {
-  id    Int      @id @default(autoincrement())
-  name  String   @unique
+  id     Int         @id @default(autoincrement())
+  name   String      @unique
   movies MovieGenre[]
 
   @@map("genres")
 }
 
 model MovieGenre {
-  movieId String
-  genreId String
+  movieId Int
+  genreId Int
 
   movie Movie @relation(fields: [movieId], references: [id], onDelete: Cascade)
   genre Genre @relation(fields: [genreId], references: [id], onDelete: Cascade)
@@ -70,9 +70,9 @@ model MovieGenre {
 }
 
 model Favorite {
-  id        String   @id @default(uuid())
-  userId    String
-  movieId   String
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  movieId   Int
   createdAt DateTime @default(now())
 
   user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -83,11 +83,11 @@ model Favorite {
 }
 
 model Review {
-  id        String   @id @default(uuid())
+  id        Int      @id @default(autoincrement())
   rating    Int
   text      String?  @db.VarChar(1000)
-  userId    String
-  movieId   String
+  userId    Int
+  movieId   Int
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -99,9 +99,9 @@ model Review {
 }
 
 model PasswordResetToken {
-  id        String   @id @default(uuid())
+  id        Int      @id @default(autoincrement())
   token     String   @unique
-  userId    String
+  userId    Int
   expiresAt DateTime
   used      Boolean  @default(false)
   createdAt DateTime @default(now())
