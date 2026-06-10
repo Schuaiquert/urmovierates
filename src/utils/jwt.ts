@@ -49,11 +49,10 @@ export interface AccessTokenPayload {
   role: string;
 }
 
-const baseSignOptions: SignOptions = {
+const baseSignOptions: Omit<SignOptions, 'jwtid'> = {
   algorithm: ALGORITHM,
   issuer: JWT_ISSUER,
   audience: JWT_AUDIENCE,
-  jwtid: uuidv4(),
 };
 
 const baseVerifyOptions: VerifyOptions = {
@@ -66,7 +65,7 @@ export function generateAccessToken(payload: AccessTokenPayload): string {
   return jwt.sign(
     { ...payload, type: ACCESS_TOKEN_TYPE },
     ACCESS_SECRET,
-    { ...baseSignOptions, expiresIn: ACCESS_EXPIRES_IN as SignOptions['expiresIn'] }
+    { ...baseSignOptions, expiresIn: ACCESS_EXPIRES_IN as SignOptions['expiresIn'], jwtid: uuidv4() }
   );
 }
 
@@ -74,7 +73,7 @@ export function generateRefreshToken(payload: AccessTokenPayload): string {
   return jwt.sign(
     { ...payload, type: REFRESH_TOKEN_TYPE },
     REFRESH_SECRET,
-    { ...baseSignOptions, expiresIn: REFRESH_EXPIRES_IN as SignOptions['expiresIn'] }
+    { ...baseSignOptions, expiresIn: REFRESH_EXPIRES_IN as SignOptions['expiresIn'], jwtid: uuidv4() }
   );
 }
 
