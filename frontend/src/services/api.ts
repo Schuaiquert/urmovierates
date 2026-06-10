@@ -1,4 +1,5 @@
-import axios, { AxiosError, AxiosInstance } from 'axios';
+import axios, { AxiosError, AxiosHeaders, AxiosInstance, InternalAxiosRequestConfig } from 'axios';
+import { API_KEY, API_KEY_HEADER } from '@/lib/api-config';
 import type { ApiResponse, AuthPayload, Movie, Review, ReviewStats, User, Genre } from '@/types';
 
 export interface MovieCreateInput {
@@ -14,25 +15,102 @@ export interface MovieCreateInput {
 
 export type MovieUpdateInput = Partial<MovieCreateInput>;
 
+/**
+ * Custom error shape attached to every rejected AxiosError. All hooks/pages
+ * read `err.userMessage` and `err.code` from this — see mapApiErrorToUserMessage
+ * below for the friendly-message mapping.
+ */
+export interface ApiError extends AxiosError<{ error?: string; code?: string }> {
+  userMessage: string;
+  code?: string;
+  httpStatus?: number;
+}
+
+/**
+ * Map a backend error response to a user-facing Portuguese string.
+ * Keeps messages consistent across all consumers (hooks, pages, modals).
+ */
+function mapApiErrorToUserMessage(
+  status: number | undefined,
+  code: string | undefined,
+  fallback: string,
+): string {
+  if (status === 401 && code === 'API_KEY_MISSING') {
+    return 'Configuração inválida: a chave da API não foi enviada. Contate o suporte.';
+  }
+  if (status === 403 && code === 'API_KEY_FORBIDDEN') {
+    return 'Chave da API inválida. Verifique a configuração do servidor.';
+  }
+  if (status === 401 && code === 'AUTH_MISSING') {
+    return 'Sua sessão expirou. Faça login novamente.';
+  }
+  if (status === 401) {
+    return 'Credenciais inválidas.';
+  }
+  if (status === 403) {
+    return 'Você não tem permissão para essa ação.';
+  }
+  if (status === 404) {
+    return 'Recurso não encontrado.';
+  }
+  if (status && status >= 500) {
+    return 'Erro no servidor. Tente novamente em alguns instantes.';
+  }
+  if (status === 0 || status === undefined) {
+    return 'Sem conexão com o servidor. Verifique sua internet.';
+  }
+  return fallback;
+}
+
 const api: AxiosInstance = axios.create({
   baseURL: '/api',
   timeout: 10000,
   headers: { 'Content-Type': 'application/json' },
 });
 
-api.interceptors.request.use((config) => {
+api.interceptors.request.use((config: InternalAxiosRequestConfig) => {
+  // Skip header injection during SSR — no localStorage, and we want the
+  // contract to be the same as the original code (which also skipped).
   if (typeof window === 'undefined') return config;
-  const token = localStorage.getItem('token');
-  if (token) config.headers.Authorization = `Bearer ${token}`;
+
+  // Axios v1 normalizes headers via AxiosHeaders; use the helper to avoid the
+  // deprecated `config.headers[xxx] = ...` pattern and keep casing consistent.
+  const headers = AxiosHeaders.from(config.headers);
+
+  // 1) X-API-Key — every protected route needs this. Public routes
+  //    (login/register/refresh/forgot-password/reset-password/health, /,
+  //    api-docs) ignore it, so sending it always is harmless.
+  if (API_KEY) headers.set(API_KEY_HEADER, API_KEY);
+
+  // 2) Authorization — only when a JWT is present in localStorage.
+  const token = window.localStorage.getItem('token');
+  if (token) headers.set('Authorization', `Bearer ${token}`);
+
+  config.headers = headers;
   return config;
 });
 
 api.interceptors.response.use(
   (r) => r,
-  (error: AxiosError<{ error?: string }>) => {
-    const message = error.response?.data?.error ?? error.message;
-    if (typeof console !== 'undefined') console.error('API Error:', message);
-    return Promise.reject(Object.assign(error, { userMessage: message }));
+  (error: ApiError) => {
+    const status = error.response?.status;
+    const data = error.response?.data;
+    const backendMessage = data?.error ?? error.message;
+    const code = data?.code;
+
+    const userMessage = mapApiErrorToUserMessage(status, code, backendMessage);
+
+    if (typeof console !== 'undefined') {
+      console.error('[api]', status, code ?? '-', backendMessage);
+    }
+
+    return Promise.reject(
+      Object.assign(error, {
+        userMessage,
+        code,
+        httpStatus: status,
+      }),
+    );
   },
 );
 
