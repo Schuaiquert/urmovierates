@@ -44,14 +44,14 @@ export const reviewValidators = {
   create: [
     body('rating').isInt({ min: 1, max: 5 }).withMessage('Rating must be between 1 and 5'),
     body('text').optional().trim().isLength({ max: 1000 }),
-    body('movieId').notEmpty().withMessage('movieId is required'),
+    body('movieId').isInt({ min: 1 }).withMessage('movieId must be a positive integer'),
   ],
   update: [
-    param('id').isUUID().withMessage('Invalid review ID'),
+    param('id').isInt({ min: 1 }).withMessage('Invalid review ID'),
     body('rating').optional().isInt({ min: 1, max: 5 }),
     body('text').optional().trim().isLength({ max: 1000 }),
   ],
-  getById: [param('id').isUUID().withMessage('Invalid review ID')],
-  delete: [param('id').isUUID().withMessage('Invalid review ID')],
-  getByMovie: [param('movieId').notEmpty().withMessage('movieId is required')],
+  getById: [param('id').isInt({ min: 1 }).withMessage('Invalid review ID')],
+  delete: [param('id').isInt({ min: 1 }).withMessage('Invalid review ID')],
+  getByMovie: [param('movieId').isInt({ min: 1 }).withMessage('movieId must be a positive integer')],
 };

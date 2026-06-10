@@ -133,7 +133,7 @@ export class AuthService {
     ]);
   }
 
-  async me(userId: string) {
+  async me(userId: number) {
     const user = await prisma.user.findUnique({
       where: { id: userId },
       select: { id: true, name: true, email: true, role: true, createdAt: true, updatedAt: true },
@@ -142,7 +142,7 @@ export class AuthService {
     return user;
   }
 
-  async updateMe(userId: string, data: UpdateMeDTO) {
+  async updateMe(userId: number, data: UpdateMeDTO) {
     const existing = await prisma.user.findUnique({ where: { id: userId } });
     if (!existing) throw new AppError('User not found', 404, 'USER_NOT_FOUND');
 
@@ -163,7 +163,7 @@ export class AuthService {
     });
   }
 
-  async deleteMe(userId: string): Promise<void> {
+  async deleteMe(userId: number): Promise<void> {
     const existing = await prisma.user.findUnique({ where: { id: userId } });
     if (!existing) throw new AppError('User not found', 404, 'USER_NOT_FOUND');
     await prisma.passwordResetToken.deleteMany({ where: { userId } });

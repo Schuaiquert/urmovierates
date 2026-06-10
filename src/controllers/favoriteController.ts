@@ -19,7 +19,7 @@ export class FavoriteController {
   async add(req: Request, res: Response, next: NextFunction) {
     try {
       if (!req.userId) throw new AppError('Authentication required', 401, 'AUTH_MISSING');
-      const movieId = req.params.movieId;
+      const movieId = Number(req.params.movieId);
       const result = await favoriteService.create(req.userId, movieId);
       res.status(201).json({ data: result });
     } catch (error) {
@@ -30,7 +30,7 @@ export class FavoriteController {
   async remove(req: Request, res: Response, next: NextFunction) {
     try {
       if (!req.userId) throw new AppError('Authentication required', 401, 'AUTH_MISSING');
-      const movieId = req.params.movieId;
+      const movieId = Number(req.params.movieId);
       const result = await favoriteService.delete(req.userId, movieId);
       res.json({ data: result });
     } catch (error) {
@@ -41,7 +41,7 @@ export class FavoriteController {
   async toggle(req: Request, res: Response, next: NextFunction) {
     try {
       if (!req.userId) throw new AppError('Authentication required', 401, 'AUTH_MISSING');
-      const movieId = req.params.movieId;
+      const movieId = Number(req.params.movieId);
       const result = await favoriteService.toggle(req.userId, movieId);
       res.json({ data: result });
     } catch (error) {
@@ -56,7 +56,7 @@ export class FavoriteController {
       if (!movieIds) {
         return res.status(400).json({ error: 'movieIds is required', code: 'VALIDATION_ERROR' });
       }
-      const ids = movieIds.split(',').filter(Boolean);
+      const ids = movieIds.split(',').filter(Boolean).map(Number);
       const result = await favoriteService.getStatus(req.userId, ids);
       res.json({ data: result });
     } catch (error) {

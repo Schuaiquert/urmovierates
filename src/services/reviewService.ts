@@ -3,7 +3,7 @@ import { CreateReviewDTO, UpdateReviewDTO, PaginationQuery } from '../types';
 import { AppError } from '../middlewares/errorHandler';
 
 export class ReviewService {
-  async findAll(query: PaginationQuery & { movieId?: string; userId?: string }) {
+  async findAll(query: PaginationQuery & { movieId?: number; userId?: number }) {
     const page = Math.max(1, query.page || 1);
     const limit = Math.min(100, Math.max(1, query.limit || 10));
     const skip = (page - 1) * limit;
@@ -29,13 +29,13 @@ export class ReviewService {
     };
   }
 
-  async findById(id: string) {
+  async findById(id: number) {
     const review = await prisma.review.findUnique({ where: { id } });
     if (!review) throw new AppError('Review not found', 404);
     return review;
   }
 
-  async findByUserAndMovie(userId: string, movieId: string) {
+  async findByUserAndMovie(userId: number, movieId: number) {
     return prisma.review.findFirst({ where: { userId, movieId } });
   }
 
@@ -43,17 +43,17 @@ export class ReviewService {
     return prisma.review.create({ data });
   }
 
-  async update(id: string, data: UpdateReviewDTO) {
+  async update(id: number, data: UpdateReviewDTO) {
     await this.findById(id);
     return prisma.review.update({ where: { id }, data });
   }
 
-  async delete(id: string) {
+  async delete(id: number) {
     await this.findById(id);
     return prisma.review.delete({ where: { id } });
   }
 
-  async getMovieStats(movieId: string) {
+  async getMovieStats(movieId: number) {
     const reviews = await prisma.review.findMany({ where: { movieId }, select: { rating: true } });
     if (reviews.length === 0) return { average: 0, count: 0 };
 

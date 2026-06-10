@@ -16,7 +16,7 @@ export class UserController {
 
   async getById(req: Request, res: Response, next: NextFunction) {
     try {
-      const user = await userService.findById(req.params.id);
+      const user = await userService.findById(Number(req.params.id));
       res.json({ data: user });
     } catch (error) {
       next(error);

@@ -21,7 +21,7 @@ export class MovieController {
 
   async getById(req: Request, res: Response, next: NextFunction) {
     try {
-      const movie = await movieService.findById(req.params.id);
+      const movie = await movieService.findById(Number(req.params.id));
       res.json({ data: movie });
     } catch (error) {
       next(error);
@@ -41,7 +41,7 @@ export class MovieController {
   async update(req: Request, res: Response, next: NextFunction) {
     try {
       const data: UpdateMovieDTO = req.body;
-      const movie = await movieService.update(req.params.id, data);
+      const movie = await movieService.update(Number(req.params.id), data);
       res.json({ data: movie });
     } catch (error) {
       next(error);
@@ -50,7 +50,7 @@ export class MovieController {
 
   async delete(req: Request, res: Response, next: NextFunction) {
     try {
-      await movieService.delete(req.params.id);
+      await movieService.delete(Number(req.params.id));
       res.status(204).send();
     } catch (error) {
       next(error);

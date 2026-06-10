@@ -50,7 +50,7 @@ export class MovieService {
     };
   }
 
-  async findById(id: string) {
+  async findById(id: number) {
     const movie = await prisma.movie.findUnique({
       where: { id },
       include: {
@@ -60,7 +60,7 @@ export class MovieService {
     if (!movie) throw new AppError('Movie not found', 404);
     return {
       ...movie,
-      genres: movie.genres.map(g => g.genre)
+      genres: movie.genres.map((g) => g.genre)
     };
   }
 
@@ -86,7 +86,7 @@ export class MovieService {
     return this.findById(movie.id);
   }
 
-  async update(id: string, data: UpdateMovieDTO & { genres?: string[] }) {
+  async update(id: number, data: UpdateMovieDTO & { genres?: string[] }) {
     await this.findById(id);
     const { genres: genreNames, ...movieData } = data;
 
@@ -103,17 +103,10 @@ export class MovieService {
       }
     }
 
-    return prisma.movie.update({
-      where: { id },
-      data: movieData,
-      include: { genres: { include: { genre: true } } }
-    }).then(m => ({
-      ...m,
-      genres: m.genres.map(g => g.genre)
-    }));
+    return this.findById(id);
   }
 
-  async delete(id: string) {
+  async delete(id: number) {
     await this.findById(id);
     return prisma.movie.delete({ where: { id } });
   }

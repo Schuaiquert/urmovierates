@@ -37,14 +37,14 @@ const ACCESS_EXPIRES_IN = process.env.JWT_EXPIRES_IN || '15m';
 const REFRESH_EXPIRES_IN = process.env.JWT_REFRESH_EXPIRES_IN || '7d';
 
 export interface JwtPayload extends BaseJwtPayload {
-  userId: string;
+  userId: number;
   email: string;
   role: string;
   type: 'access' | 'refresh';
 }
 
 export interface AccessTokenPayload {
-  userId: string;
+  userId: number;
   email: string;
   role: string;
 }

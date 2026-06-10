@@ -3,7 +3,7 @@ import { AppError } from '../middlewares/errorHandler';
 import { PaginationQuery } from '../types';
 
 export class FavoriteService {
-  async findByUser(userId: string, query: PaginationQuery) {
+  async findByUser(userId: number, query: PaginationQuery) {
     const page = Math.max(1, query.page || 1);
     const limit = Math.min(100, Math.max(1, query.limit || 12));
     const skip = (page - 1) * limit;
@@ -39,13 +39,13 @@ export class FavoriteService {
     };
   }
 
-  async findByUserAndMovie(userId: string, movieId: string) {
+  async findByUserAndMovie(userId: number, movieId: number) {
     return prisma.favorite.findUnique({
       where: { userId_movieId: { userId, movieId } },
     });
   }
 
-  async create(userId: string, movieId: string) {
+  async create(userId: number, movieId: number) {
     const movie = await prisma.movie.findUnique({ where: { id: movieId } });
     if (!movie) throw new AppError('Movie not found', 404);
     if (!movie.active) throw new AppError('Cannot favorite inactive movie', 400);
@@ -57,7 +57,7 @@ export class FavoriteService {
     return { favorited: true };
   }
 
-  async delete(userId: string, movieId: string) {
+  async delete(userId: number, movieId: number) {
     const favorite = await this.findByUserAndMovie(userId, movieId);
     if (!favorite) throw new AppError('Favorite not found', 404);
 
@@ -65,7 +65,7 @@ export class FavoriteService {
     return { favorited: false };
   }
 
-  async toggle(userId: string, movieId: string) {
+  async toggle(userId: number, movieId: number) {
     const existing = await this.findByUserAndMovie(userId, movieId);
     if (existing) {
       await this.delete(userId, movieId);
@@ -76,7 +76,7 @@ export class FavoriteService {
     }
   }
 
-  async getStatus(userId: string, movieIds: string[]) {
+  async getStatus(userId: number, movieIds: number[]) {
     if (!userId || movieIds.length === 0) {
       return movieIds.reduce((acc, id) => ({ ...acc, [id]: false }), {});
     }

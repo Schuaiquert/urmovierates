@@ -27,8 +27,8 @@ export interface UpdateMovieDTO {
 export interface CreateReviewDTO {
   rating: number;
   text?: string;
-  userId: string;
-  movieId: string;
+  userId: number;
+  movieId: number;
 }
 
 export interface UpdateReviewDTO {
@@ -73,7 +73,7 @@ export interface AuthResponse {
   accessToken: string;
   refreshToken: string;
   user: {
-    id: string;
+    id: number;
     email: string;
     name: string;
     role: string;
