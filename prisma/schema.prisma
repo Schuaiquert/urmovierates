@@ -51,7 +51,7 @@ model Movie {
 }
 
 model Genre {
-  id    String   @id @default(uuid())
+  id    Int      @id @default(autoincrement())
   name  String   @unique
   movies MovieGenre[]
 
