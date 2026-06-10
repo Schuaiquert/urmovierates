@@ -9,8 +9,9 @@ services:
       - "3001:3001"
     environment:
       - NODE_ENV=staging
-      - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/urmovierates
+      - DATABASE_URL=postgresql://postgres:***@postgres:5432/urmovierates
       - REDIS_URL=redis://redis:6379
+      - API_KEY=***
     volumes:
       - ../../src:/app/src
       - ../../package.json:/app/package.json
