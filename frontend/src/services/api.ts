@@ -171,3 +171,22 @@ export const authAPI = {
 };
 
 export default api;
+
+// Dispatch a window event whenever a request is rejected with 401 AUTH_MISSING.
+// The AuthProvider listens for this and forces a logout + redirect to /login.
+// Kept as a separate response interceptor so the message-mapping pass runs first
+// and this one only observes.
+if (typeof window !== 'undefined') {
+  api.interceptors.response.use(
+    (r) => r,
+    (error: ApiError) => {
+      if (
+        error.response?.status === 401 &&
+        error.response?.data?.code === 'AUTH_MISSING'
+      ) {
+        window.dispatchEvent(new CustomEvent('app:auth-expired'));
+      }
+      return Promise.reject(error);
+    },
+  );
+}

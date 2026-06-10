@@ -32,6 +32,20 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setLoading(false);
   }, []);
 
+  // Listen for 401 AUTH_MISSING from any api call and force a logout.
+  useEffect(() => {
+    const onExpired = () => {
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+      setUser(null);
+      if (window.location.pathname !== '/login') {
+        window.location.href = '/login';
+      }
+    };
+    window.addEventListener('app:auth-expired', onExpired);
+    return () => window.removeEventListener('app:auth-expired', onExpired);
+  }, []);
+
   const login = useCallback(async (email: string, password: string) => {
     const { data } = await authAPI.login({ email, password });
     localStorage.setItem('token', data.data.token);
