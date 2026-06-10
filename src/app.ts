@@ -12,6 +12,7 @@ import movieRoutes from './routes/movieRoutes';
 import userRoutes from './routes/userRoutes';
 import reviewRoutes from './routes/reviewRoutes';
 import favoriteRoutes from './routes/favoriteRoutes';
+import authPublicRoutes from './routes/authPublicRoutes';
 import authRoutes from './routes/authRoutes';
 
 const app = express();
@@ -39,13 +40,8 @@ app.get('/health', (req, res) => {
 // Swagger UI + its static assets (served by swagger-ui-express).
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
-// Public auth flows (temporary noop bypass — replaced in next task by a real
-// public sub-router that lets only login/register/refresh/forgot/reset through).
-app.use('/api/auth/login', (_req, _res, next) => next());
-app.use('/api/auth/register', (_req, _res, next) => next());
-app.use('/api/auth/refresh', (_req, _res, next) => next());
-app.use('/api/auth/forgot-password', (_req, _res, next) => next());
-app.use('/api/auth/reset-password', (_req, _res, next) => next());
+// Public auth flows (no X-API-Key, no JWT).
+app.use('/api/auth', authPublicRoutes);
 
 // ---------------------------------------------------------------------------
 // X-API-Key gate — applied to everything mounted below this line.
