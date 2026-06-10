@@ -34,6 +34,8 @@ const router = Router();
  *   get:
  *     summary: List all users
  *     tags: [Users]
+ *     security:
+ *       - apiKeyAuth: []
  *     parameters:
  *       - in: query
  *         name: page
@@ -53,6 +55,8 @@ router.get('/', userController.getAll.bind(userController));
  *   get:
  *     summary: Get user by ID
  *     tags: [Users]
+ *     security:
+ *       - apiKeyAuth: []
  *     parameters:
  *       - in: path
  *         name: id

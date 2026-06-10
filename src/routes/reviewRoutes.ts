@@ -77,6 +77,7 @@ const router = Router();
  *     summary: Create a new review
  *     tags: [Reviews]
  *     security:
+ *       - apiKeyAuth: []
  *       - bearerAuth: []
  *     requestBody:
  *       required: true
@@ -159,6 +160,7 @@ router.get('/movies/:movieId', reviewValidators.getByMovie, validate, reviewCont
  *     summary: Update review
  *     tags: [Reviews]
  *     security:
+ *       - apiKeyAuth: []
  *       - bearerAuth: []
  *     parameters:
  *       - in: path
@@ -182,6 +184,7 @@ router.get('/movies/:movieId', reviewValidators.getByMovie, validate, reviewCont
  *     summary: Delete review
  *     tags: [Reviews]
  *     security:
+ *       - apiKeyAuth: []
  *       - bearerAuth: []
  *     parameters:
  *       - in: path

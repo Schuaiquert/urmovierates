@@ -33,6 +33,7 @@ router.use(authenticate);
  *     summary: Get the authenticated user's favorites
  *     tags: [Favorites]
  *     security:
+ *       - apiKeyAuth: []
  *       - bearerAuth: []
  *     parameters:
  *       - in: query
@@ -64,6 +65,7 @@ router.get(
  *     summary: Get favorite status for multiple movies for the authenticated user
  *     tags: [Favorites]
  *     security:
+ *       - apiKeyAuth: []
  *       - bearerAuth: []
  *     parameters:
  *       - in: query
@@ -96,6 +98,7 @@ router.get(
  *     summary: Add movie to authenticated user's favorites
  *     tags: [Favorites]
  *     security:
+ *       - apiKeyAuth: []
  *       - bearerAuth: []
  *     parameters:
  *       - in: path
@@ -127,6 +130,7 @@ router.post(
  *     summary: Remove movie from authenticated user's favorites
  *     tags: [Favorites]
  *     security:
+ *       - apiKeyAuth: []
  *       - bearerAuth: []
  *     parameters:
  *       - in: path
@@ -158,6 +162,7 @@ router.delete(
  *     summary: Toggle favorite status for the authenticated user
  *     tags: [Favorites]
  *     security:
+ *       - apiKeyAuth: []
  *       - bearerAuth: []
  *     parameters:
  *       - in: path

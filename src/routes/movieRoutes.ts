@@ -102,6 +102,7 @@ const router = Router();
  *     summary: Create a new movie
  *     tags: [Movies]
  *     security:
+ *       - apiKeyAuth: []
  *       - bearerAuth: []
  *     requestBody:
  *       required: true
@@ -157,6 +158,7 @@ router.get('/genres', movieController.getGenres.bind(movieController));
  *     summary: Create a new genre
  *     tags: [Movies]
  *     security:
+ *       - apiKeyAuth: []
  *       - bearerAuth: []
  *     requestBody:
  *       required: true
@@ -202,6 +204,7 @@ router.post('/genres', authenticate, requireRole('ADMIN'), movieController.creat
  *     summary: Update movie
  *     tags: [Movies]
  *     security:
+ *       - apiKeyAuth: []
  *       - bearerAuth: []
  *     parameters:
  *       - in: path
@@ -225,6 +228,7 @@ router.post('/genres', authenticate, requireRole('ADMIN'), movieController.creat
  *     summary: Delete movie
  *     tags: [Movies]
  *     security:
+ *       - apiKeyAuth: []
  *       - bearerAuth: []
  *     parameters:
  *       - in: path
