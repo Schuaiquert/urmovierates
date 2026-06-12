@@ -9,9 +9,10 @@ services:
       - "3000:3000"
     environment:
       - NODE_ENV=development
-      - DATABASE_URL=postgresql://postgres:***@postgres:5432/urmovierates
+      - PORT=3000
+      - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/urmovierates
       - REDIS_URL=redis://redis:6379
-      - API_KEY=***
+      - API_KEY= 83c032826d9bae0ca6fe2554501ae1d8032703545789865a8b439a42f17e7da7
     volumes:
       - /home/projects/pedro/urmovierates/src:/app/src
       - /home/projects/pedro/urmovierates/package.json:/app/package.json
@@ -22,7 +23,7 @@ services:
         condition: service_healthy
       redis:
         condition: service_started
-    command: npm run dev
+    command: ["sh", "-c", "npx prisma generate && npm run dev"]
     networks:
       - urmovierates
 
