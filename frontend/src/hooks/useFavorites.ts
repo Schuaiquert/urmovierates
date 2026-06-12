@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState } from 'react';
 import { favoritesAPI } from '@/services/api';
+import { emitDataChanged } from '@/hooks/useDataChanged';
 import type { Movie, Pagination } from '@/types';
 
 export function useFavoriteStatus(movieIds: string[] = []) {
@@ -34,6 +35,10 @@ export function useFavoriteStatus(movieIds: string[] = []) {
   const toggle = async (movieId: string) => {
     const { data } = await favoritesAPI.toggle(movieId);
     setFavorites((prev) => ({ ...prev, [movieId]: data.data.favorited }));
+    emitDataChanged({
+      kind: data.data.favorited ? 'favorite:added' : 'favorite:removed',
+      movieId,
+    });
     return data.data;
   };
 
@@ -67,6 +72,7 @@ export function useUserFavorites(initialPage = 1) {
     await favoritesAPI.remove(movieId);
     setMovies((prev) => prev.filter((m) => m.id !== movieId));
     setPagination((prev) => ({ ...prev, total: Math.max(prev.total - 1, 0) }));
+    emitDataChanged({ kind: 'favorite:removed', movieId });
   };
 
   return { movies, pagination, loading, error, refetch: () => fetchFavorites(pagination.page), remove };

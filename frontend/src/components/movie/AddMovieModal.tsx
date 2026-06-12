@@ -5,6 +5,7 @@ import { Modal } from '@/components/common/Modal';
 import { Button } from '@/components/common/Button';
 import { MovieFormFields, type MovieFormValues } from './MovieFormFields';
 import { moviesAPI } from '@/services/api';
+import { emitDataChanged } from '@/hooks/useDataChanged';
 import type { AxiosError } from 'axios';
 
 interface Props { open: boolean; onClose: () => void; onAdded: () => void; }
@@ -20,15 +21,16 @@ export function AddMovieModal({ open, onClose, onAdded }: Props) {
     e.preventDefault();
     setError(''); setLoading(true);
     try {
-      await moviesAPI.create({
+      const { data } = await moviesAPI.create({
         title: values.title,
         year: parseInt(values.year) || undefined,
         duration: parseInt(values.duration) || undefined,
         synopsis: values.synopsis || undefined,
         poster: values.poster || undefined,
         trailer: values.trailer || undefined,
-        genres: values.genres.map((name) => ({ name })),
+        genres: values.genres,
       });
+      emitDataChanged({ kind: 'movie:created', movieId: data.data.id });
       setValues(EMPTY);
       onAdded();
     } catch (e) {

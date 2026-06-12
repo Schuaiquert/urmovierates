@@ -2,6 +2,7 @@ import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
 import { MovieSchema } from '@/components/seo/MovieSchema';
 import { MovieDetail } from './movie-detail';
+import { API_HEADERS } from '@/lib/api-config';
 import type { Movie, Review, ReviewStats } from '@/types';
 
 interface PageProps { params: { id: string }; }
@@ -12,14 +13,14 @@ const API_BASE = process.env.NEXT_PUBLIC_API_BASE ?? 'http://localhost:3000';
 
 async function fetchMovie(id: string): Promise<{ movie?: Movie; reviews: Review[]; stats: ReviewStats }> {
   try {
-    const movieRes = await fetch(`${API_BASE}/api/movies/${id}`, { cache: 'no-store' });
+    const movieRes = await fetch(`${API_BASE}/api/movies/${id}`, { cache: 'no-store', headers: API_HEADERS });
     if (!movieRes.ok) return { reviews: [], stats: { average: 0, count: 0 } };
     const movieJson = (await movieRes.json()) as { data: Movie };
     const [reviewsRes, statsRes] = await Promise.all([
-      fetch(`${API_BASE}/api/reviews/movies/${id}`, { cache: 'no-store' })
+      fetch(`${API_BASE}/api/reviews/movies/${id}`, { cache: 'no-store', headers: API_HEADERS })
         .then((r) => (r.ok ? r.json() as Promise<{ data: Review[] }> : { data: [] as Review[] }))
         .catch(() => ({ data: [] as Review[] })),
-      fetch(`${API_BASE}/api/reviews/movies/${id}/stats`, { cache: 'no-store' })
+      fetch(`${API_BASE}/api/reviews/movies/${id}/stats`, { cache: 'no-store', headers: API_HEADERS })
         .then((r) => (r.ok ? r.json() as Promise<{ data: ReviewStats }> : { data: { average: 0, count: 0 } as ReviewStats }))
         .catch(() => ({ data: { average: 0, count: 0 } as ReviewStats })),
     ]);

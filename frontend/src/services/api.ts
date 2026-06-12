@@ -10,7 +10,7 @@ export interface MovieCreateInput {
   trailer?: string;
   duration?: number;
   active?: boolean;
-  genres: { name: string }[];
+  genres: string[];
 }
 
 export type MovieUpdateInput = Partial<MovieCreateInput>;

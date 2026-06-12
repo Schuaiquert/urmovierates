@@ -7,6 +7,7 @@ import { Footer } from './Footer';
 import { AddMovieModal } from '@/components/movie/AddMovieModal';
 import { useAuth } from '@/contexts/AuthContext';
 import { LayoutContext } from '@/contexts/LayoutContext';
+import { useDataChanged } from '@/hooks/useDataChanged';
 import { SEARCH_DEBOUNCE_MS } from '@/lib/constants';
 
 export function PublicLayout({ children }: { children: React.ReactNode }) {
@@ -66,6 +67,23 @@ function PublicLayoutChrome({ children }: { children: React.ReactNode }) {
   };
 
   const refresh = useCallback(() => setRefreshKey((k) => k + 1), []);
+
+  // Bump the global refreshKey whenever a movie is created, updated or
+  // deleted anywhere in the app — the Home grid depends on this value to
+  // re-fetch its list. We intentionally do not bump on review/favorite
+  // events: those lists are scoped to a single page and refetch locally.
+  useDataChanged(
+    (detail) => {
+      if (
+        detail.kind === 'movie:created' ||
+        detail.kind === 'movie:updated' ||
+        detail.kind === 'movie:deleted'
+      ) {
+        refresh();
+      }
+    },
+    ['movie:created', 'movie:updated', 'movie:deleted'],
+  );
 
   const layoutValue = useMemo(() => ({ refreshKey }), [refreshKey]);
 

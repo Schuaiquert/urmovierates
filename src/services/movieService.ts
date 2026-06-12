@@ -90,6 +90,10 @@ export class MovieService {
     await this.findById(id);
     const { genres: genreNames, ...movieData } = data;
 
+    if (Object.keys(movieData).length > 0) {
+      await prisma.movie.update({ where: { id }, data: movieData });
+    }
+
     if (genreNames !== undefined) {
       await prisma.movieGenre.deleteMany({ where: { movieId: id } });
       if (genreNames.length > 0) {

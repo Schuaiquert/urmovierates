@@ -1,10 +1,11 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { Modal } from '@/components/common/Modal';
 import { Button } from '@/components/common/Button';
 import { MovieFormFields, type MovieFormValues } from './MovieFormFields';
 import { moviesAPI } from '@/services/api';
+import { emitDataChanged } from '@/hooks/useDataChanged';
 import type { AxiosError } from 'axios';
 import type { Movie } from '@/types';
 
@@ -21,26 +22,31 @@ export function EditMovieModal({ open, movie, onClose, onUpdated }: Props) {
 
   useEffect(() => { if (open) setError(''); }, [open]);
 
-  const submit = async (e: React.FormEvent) => {
+  const submit = useCallback(async (e: React.FormEvent) => {
     e.preventDefault();
     setError(''); setLoading(true);
     try {
-      await moviesAPI.update(movie.id, {
+      const { data } = await moviesAPI.update(movie.id, {
         title: values.title,
         year: parseInt(values.year) || undefined,
         duration: parseInt(values.duration) || undefined,
         synopsis: values.synopsis || undefined,
         poster: values.poster || undefined,
         trailer: values.trailer || undefined,
-        genres: values.genres.map((name) => ({ name })),
+        genres: values.genres,
       });
+      // Tell the rest of the app (Home, Favorites, MovieDetail itself) that
+      // this movie's data is stale and should be re-fetched. MovieDetail
+      // filters on movieId and refetches its own copy; Home listens via
+      // PublicLayout's refreshKey and refetches the list.
+      emitDataChanged({ kind: 'movie:updated', movieId: data.data.id });
       onUpdated();
       onClose();
     } catch (e) {
       const err = e as AxiosError<{ error?: string }>;
       setError(err.response?.data?.error ?? err.message ?? 'Erro ao atualizar filme');
     } finally { setLoading(false); }
-  };
+  }, [movie.id, values, onUpdated, onClose]);
 
   return (
     <Modal open={open} onClose={onClose} title="Editar Filme" size="md">

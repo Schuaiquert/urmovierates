@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState } from 'react';
 import { reviewsAPI } from '@/services/api';
+import { emitDataChanged } from '@/hooks/useDataChanged';
 import type { Review, ReviewStats } from '@/types';
 
 export function useMovieReviews(movieId: string | undefined) {
@@ -34,6 +35,7 @@ export function useMovieReviews(movieId: string | undefined) {
   const createReview = async (payload: { rating: number; text?: string }) => {
     const { data } = await reviewsAPI.create({ ...payload, movieId });
     setReviews((prev) => [data.data, ...prev]);
+    emitDataChanged({ kind: 'review:created', movieId });
     await fetchReviews();
     return data.data;
   };
@@ -41,12 +43,14 @@ export function useMovieReviews(movieId: string | undefined) {
   const updateReview = async (id: string, payload: { rating: number; text?: string }) => {
     const { data } = await reviewsAPI.update(id, payload);
     setReviews((prev) => prev.map((r) => (r.id === id ? data.data : r)));
+    emitDataChanged({ kind: 'review:updated', movieId });
     await fetchReviews();
   };
 
   const deleteReview = async (id: string) => {
     await reviewsAPI.remove(id);
     setReviews((prev) => prev.filter((r) => r.id !== id));
+    emitDataChanged({ kind: 'review:deleted', movieId });
     await fetchReviews();
   };
 

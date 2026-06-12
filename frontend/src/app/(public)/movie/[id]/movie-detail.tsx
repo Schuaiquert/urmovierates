@@ -1,11 +1,13 @@
 'use client';
 
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { Film, ArrowLeft, Pencil, PlayCircle, CheckCircle2, MessageSquare } from 'lucide-react';
 import { useMovieReviews } from '@/hooks/useReviews';
 import { useAuth } from '@/contexts/AuthContext';
+import { useDataChanged } from '@/hooks/useDataChanged';
+import { moviesAPI } from '@/services/api';
 import { ReviewForm, ReviewCard } from '@/components/review';
 import { EditMovieModal } from '@/components/movie/EditMovieModal';
 import { Spinner, Button, Rating } from '@/components/common';
@@ -24,6 +26,29 @@ export function MovieDetail({ initialMovie, initialReviews, initialStats }: Prop
   const [success, setSuccess] = useState(false);
   const [editing, setEditing] = useState(false);
   const [movie, setMovie] = useState(initialMovie);
+
+  // Auto-refresh the movie record whenever another surface (or this same modal
+  // via window event) signals a movie:updated for THIS id. We also re-run on
+  // mount so navigating from the Home into a freshly-edited movie shows the
+  // latest server state.
+  const refetchMovie = useCallback(async () => {
+    try {
+      const { data } = await moviesAPI.getById(initialMovie.id);
+      if (data.data) setMovie(data.data);
+    } catch {
+      // Silent: MovieDetail is decorative; the parent layout already shows
+      // 404s for missing movies via the server-rendered page.
+    }
+  }, [initialMovie.id]);
+
+  useDataChanged(
+    (detail) => {
+      if (detail.kind === 'movie:updated' && String(detail.movieId) === String(initialMovie.id)) {
+        refetchMovie();
+      }
+    },
+    'movie:updated',
+  );
 
   const handleCreate = async (data: { rating: number; text: string }) => {
     setSubmitting(true);

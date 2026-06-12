@@ -32,3 +32,16 @@ export const API_KEY_HEADER = 'X-API-Key';
  * drop empty headers), but the backend will reject the request.
  */
 export const API_KEY: string = RAW_API_KEY;
+
+/**
+ * HTTP headers for Next.js server-side fetches to the protected backend.
+ *
+ * The axios interceptor in `services/api.ts` injects these headers
+ * automatically for client-side requests. Server components run in a
+ * separate JS context with no axios, so the explicit header map is
+ * required there — otherwise the backend's apiKeyAuth gate returns
+ * 401 API_KEY_MISSING and the SSR fetch falls through to notFound().
+ */
+export const API_HEADERS: Record<string, string> = API_KEY
+  ? { [API_KEY_HEADER]: API_KEY }
+  : {};

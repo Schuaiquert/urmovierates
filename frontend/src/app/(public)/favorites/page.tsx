@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { Lock, Heart } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useUserFavorites } from '@/hooks/useFavorites';
+import { useDataChanged } from '@/hooks/useDataChanged';
 import { MovieCard } from '@/components/movie/MovieCard';
 import { FavoriteButton } from '@/components/movie/FavoriteButton';
 import { EmptyState, ErrorState, Pagination, MovieCardSkeleton } from '@/components/common';
@@ -12,6 +13,15 @@ export default function FavoritesPage() {
   const { user } = useAuth();
   const { movies, pagination, loading, error, remove, refetch } = useUserFavorites();
   const [removing, setRemoving] = useState<string | null>(null);
+
+  // Another tab/page (or a child component on the same page) added or
+  // removed a favorite — re-fetch so this view stays in sync. The local
+  // `remove` handler above already updates the list optimistically, but
+  // re-fetching on the global event also covers add/remove from elsewhere.
+  useDataChanged(
+    () => { refetch(); },
+    ['favorite:added', 'favorite:removed', 'favorite:toggled'],
+  );
 
   if (!user) {
     return (
