@@ -23,9 +23,10 @@ model User {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  reviews     Review[]
-  favorites   Favorite[]
-  resetTokens PasswordResetToken[]
+  reviews          Review[] @relation("ReviewAuthor")
+  moderatedReviews Review[] @relation("ReviewModerator")
+  favorites        Favorite[]
+  resetTokens      PasswordResetToken[]
 
   @@map("users")
 }
@@ -91,10 +92,18 @@ model Review {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
-  movie Movie @relation(fields: [movieId], references: [id], onDelete: Restrict)
+  // Moderação (soft delete + auditoria)
+  isDeleted      Boolean   @default(false)
+  deletedAt      DateTime?
+  deletionReason String?
+  deletedById    Int?
+
+  user      User   @relation("ReviewAuthor", fields: [userId], references: [id], onDelete: Cascade)
+  deletedBy User?  @relation("ReviewModerator", fields: [deletedById], references: [id], onDelete: SetNull)
+  movie     Movie  @relation(fields: [movieId], references: [id], onDelete: Restrict)
 
   @@unique([userId, movieId])
+  @@index([isDeleted, deletedById])
   @@map("reviews")
 }
 

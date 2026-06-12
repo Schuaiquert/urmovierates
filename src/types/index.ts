@@ -34,6 +34,9 @@ export interface CreateReviewDTO {
 export interface UpdateReviewDTO {
   rating?: number;
   text?: string;
+  /** Apenas informativo: nunca persistido a partir de input de usuário
+   *  comum. Usado internamente pelo service para registrar moderação. */
+  deletionReason?: string;
 }
 
 export interface PaginationQuery {

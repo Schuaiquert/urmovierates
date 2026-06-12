@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import { reviewController } from '../controllers/reviewController';
 import { reviewValidators, validate } from '../middlewares/validators';
-import { authenticate, requireRole } from '../middlewares/authMiddleware';
+import { authenticate, optionalAuth, requireRole } from '../middlewares/authMiddleware';
 
 const router = Router();
 
@@ -97,7 +97,7 @@ const router = Router();
  *       401:
  *         $ref: '#/components/schemas/Unauthorized'
  */
-router.get('/', reviewController.getAll.bind(reviewController));
+router.get('/', optionalAuth, reviewController.getAll.bind(reviewController));
 router.post(
   '/',
   authenticate,
@@ -138,7 +138,7 @@ router.get('/movies/:movieId/stats', reviewValidators.getByMovie, validate, revi
  *       200:
  *         description: List of movie reviews
  */
-router.get('/movies/:movieId', reviewValidators.getByMovie, validate, reviewController.getByMovie.bind(reviewController));
+router.get('/movies/:movieId', optionalAuth, reviewValidators.getByMovie, validate, reviewController.getByMovie.bind(reviewController));
 
 /**
  * @swagger
@@ -199,7 +199,7 @@ router.get('/movies/:movieId', reviewValidators.getByMovie, validate, reviewCont
  *       403:
  *         $ref: '#/components/schemas/Forbidden'
  */
-router.get('/:id', reviewValidators.getById, validate, reviewController.getById.bind(reviewController));
+router.get('/:id', optionalAuth, reviewValidators.getById, validate, reviewController.getById.bind(reviewController));
 router.put(
   '/:id',
   authenticate,

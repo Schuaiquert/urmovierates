@@ -50,8 +50,30 @@ export const reviewValidators = {
     param('id').isInt({ min: 1 }).withMessage('Invalid review ID'),
     body('rating').optional().isInt({ min: 1, max: 5 }),
     body('text').optional().trim().isLength({ max: 1000 }),
+    // Defesa em profundidade: body não pode trazer campos de moderação.
+    body('isDeleted').not().exists().withMessage('isDeleted is not allowed'),
+    body('deletedById').not().exists().withMessage('deletedById is not allowed'),
+    body('deletedAt').not().exists().withMessage('deletedAt is not allowed'),
+    body('deletionReason').not().exists().withMessage('deletionReason is not allowed'),
+    body('userId').not().exists().withMessage('userId is not allowed'),
+    body('movieId').not().exists().withMessage('movieId is not allowed'),
   ],
   getById: [param('id').isInt({ min: 1 }).withMessage('Invalid review ID')],
-  delete: [param('id').isInt({ min: 1 }).withMessage('Invalid review ID')],
+  delete: [
+    param('id').isInt({ min: 1 }).withMessage('Invalid review ID'),
+    body('reason')
+      .exists({ checkFalsy: true })
+      .withMessage('reason is required')
+      .bail()
+      .isString()
+      .withMessage('reason must be a string')
+      .bail()
+      .trim()
+      .notEmpty()
+      .withMessage('reason cannot be empty')
+      .bail()
+      .isLength({ max: 500 })
+      .withMessage('reason must be at most 500 characters'),
+  ],
   getByMovie: [param('movieId').isInt({ min: 1 }).withMessage('movieId must be a positive integer')],
 };
