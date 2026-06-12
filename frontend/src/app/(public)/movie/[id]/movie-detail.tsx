@@ -8,7 +8,7 @@ import { useMovieReviews } from '@/hooks/useReviews';
 import { useAuth } from '@/contexts/AuthContext';
 import { useDataChanged } from '@/hooks/useDataChanged';
 import { moviesAPI } from '@/services/api';
-import { ReviewForm, ReviewCard } from '@/components/review';
+import { ReviewForm, ReviewCard, EditReviewModal } from '@/components/review';
 import { EditMovieModal } from '@/components/movie/EditMovieModal';
 import { Spinner, Button, Rating } from '@/components/common';
 import { formatDuration } from '@/lib/format';
@@ -19,12 +19,14 @@ interface Props { initialMovie: Movie; initialReviews: Review[]; initialStats: R
 export function MovieDetail({ initialMovie, initialReviews, initialStats }: Props) {
   const { user } = useAuth();
   const isAdmin = user?.role === 'ADMIN';
-  const { reviews, stats, loading, createReview, deleteReview, refetch } =
+  const { reviews, stats, loading, createReview, updateReview, deleteReview, refetch } =
     useMovieReviews(initialMovie.id);
   const [hydrated] = useState(() => ({ reviews: initialReviews, stats: initialStats }));
   const [submitting, setSubmitting] = useState(false);
   const [success, setSuccess] = useState(false);
   const [editing, setEditing] = useState(false);
+  const [editingReview, setEditingReview] = useState<Review | null>(null);
+  const [savingEdit, setSavingEdit] = useState(false);
   const [movie, setMovie] = useState(initialMovie);
 
   // Auto-refresh the movie record whenever another surface (or this same modal
@@ -56,9 +58,28 @@ export function MovieDetail({ initialMovie, initialReviews, initialStats }: Prop
     finally { setSubmitting(false); }
   };
 
+  const handleSaveEdit = async (data: { rating: number; text: string }) => {
+    if (!editingReview) return;
+    setSavingEdit(true);
+    try {
+      await updateReview(editingReview.id, data);
+      setEditingReview(null);
+    } catch (e: unknown) {
+      const err = e as { userMessage?: string };
+      window.alert(err.userMessage ?? 'Erro ao salvar edição');
+    } finally {
+      setSavingEdit(false);
+    }
+  };
+
   const handleDelete = async (id: string) => {
     if (!window.confirm('Tem certeza que deseja excluir esta avaliação?')) return;
-    try { await deleteReview(id); }
+    const reason = window.prompt('Motivo da exclusão (obrigatório):');
+    if (!reason || !reason.trim()) {
+      window.alert('É necessário informar um motivo para excluir.');
+      return;
+    }
+    try { await deleteReview(id, reason.trim()); }
     catch (e: unknown) {
       const err = e as { userMessage?: string };
       window.alert(err.userMessage ?? 'Erro ao excluir avaliação');
@@ -173,8 +194,22 @@ export function MovieDetail({ initialMovie, initialReviews, initialStats }: Prop
         ) : (
           <div className="space-y-4">
             {displayReviews.map((r) => (
-              <ReviewCard key={r.id} review={r}
-                onDelete={user && r.userId === user.id ? () => handleDelete(r.id) : undefined} />
+              <ReviewCard
+                key={r.id}
+                review={r}
+                currentUserId={user?.id}
+                isAdmin={isAdmin}
+                onEdit={
+                  user && r.userId === user.id && !r.isDeleted
+                    ? () => setEditingReview(r)
+                    : undefined
+                }
+                onDelete={
+                  user && (r.userId === user.id || isAdmin) && !r.isDeleted
+                    ? () => handleDelete(r.id)
+                    : undefined
+                }
+              />
             ))}
           </div>
         )}
@@ -183,6 +218,16 @@ export function MovieDetail({ initialMovie, initialReviews, initialStats }: Prop
       {editing && (
         <EditMovieModal open={editing} movie={movie} onClose={() => setEditing(false)}
           onUpdated={async () => { setEditing(false); await refetch(); }} />
+      )}
+
+      {editingReview && (
+        <EditReviewModal
+          open={!!editingReview}
+          review={editingReview}
+          loading={savingEdit}
+          onClose={() => setEditingReview(null)}
+          onSave={handleSaveEdit}
+        />
       )}
     </div>
   );

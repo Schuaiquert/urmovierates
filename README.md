@@ -151,6 +151,27 @@ O frontend estará disponível em **http://localhost:5173**. Em dev, requisiçõ
 | POST | `/api/auth/login` | Login |
 | GET | `/api/genres` | Listar gêneros |
 | GET | `/api/years` | Listar anos disponíveis |
+| GET/POST | `/api/reviews` | Listar/criar avaliações |
+| GET/PUT/DELETE | `/api/reviews/:id` | Detalhe/editar/excluir avaliação |
+
+### Edição e exclusão de comentários
+
+- `PUT /api/reviews/:id` — apenas o **autor** pode editar (admin NÃO
+  edita comentários de outros). Campos mutáveis: `rating`, `text`.
+  Campos sensíveis (`isDeleted`, `deletedById`, `deletedAt`,
+  `deletionReason`, `userId`, `movieId`) são rejeitados com HTTP 400.
+- `DELETE /api/reviews/:id` — autor pode excluir o próprio; admin
+  pode excluir qualquer um. **Sempre soft delete** com auditoria
+  (`isDeleted`, `deletedAt`, `deletedById`, `deletionReason`).
+  Body **obrigatório**: `{ "reason": "motivo (1-500 chars)" }`.
+  Resposta 400 (`REASON_REQUIRED`) se ausente ou vazio.
+- O autor da review removida ainda recebe o registro ao consultar
+  `GET /api/reviews/:id` com seu token, com `isDeleted: true` e
+  `deletedBy: { id, name }` para exibir o banner de moderação.
+  Em auto-exclusões, `deletedBy` aponta para o próprio autor.
+- Listagens públicas (`GET /api/reviews/movies/:id`,
+  `GET /api/reviews`) e o cálculo de estatísticas (`/stats`) **ignoram**
+  reviews com `isDeleted: true`.
 
 ### Documentação Interativa (Swagger UI)
 

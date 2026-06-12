@@ -47,8 +47,11 @@ export function useMovieReviews(movieId: string | undefined) {
     await fetchReviews();
   };
 
-  const deleteReview = async (id: string) => {
-    await reviewsAPI.remove(id);
+  const deleteReview = async (id: string, reason: string) => {
+    if (!reason || !reason.trim()) {
+      throw new Error('Motivo da exclusão é obrigatório');
+    }
+    await reviewsAPI.remove(id, reason.trim());
     setReviews((prev) => prev.filter((r) => r.id !== id));
     emitDataChanged({ kind: 'review:deleted', movieId });
     await fetchReviews();

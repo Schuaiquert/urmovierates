@@ -134,7 +134,9 @@ export const reviewsAPI = {
     api.get<ApiResponse<ReviewStats>>(`/reviews/movies/${movieId}/stats`),
   create: (data: Partial<Review>) => api.post<ApiResponse<Review>>('/reviews', data),
   update: (id: string, data: Partial<Review>) => api.put<ApiResponse<Review>>(`/reviews/${id}`, data),
-  remove: (id: string) => api.delete(`/reviews/${id}`),
+  // reason é obrigatório no backend; o caller do hook deve garanti-lo.
+  remove: (id: string, reason: string) =>
+    api.delete(`/reviews/${id}`, { data: { reason } }),
 };
 
 export const usersAPI = {

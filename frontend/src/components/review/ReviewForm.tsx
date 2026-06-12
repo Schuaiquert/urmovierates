@@ -7,12 +7,27 @@ import { Button } from '@/components/common/Button';
 import { Rating } from '@/components/common/Rating';
 
 const MAX_CHARS = 1000;
-const RATING_LABEL: Record<number, string> = { 1: 'Não gostou', 2: 'Regular', 3: 'Bom', 4: 'Ótimo', 5: 'Excelente!' };
+const RATING_LABEL: Record<number, string> = {
+  1: 'Não gostou', 2: 'Regular', 3: 'Bom', 4: 'Ótimo', 5: 'Excelente!',
+};
 
-export function ReviewForm({ onSubmit, loading }: { onSubmit: (data: { rating: number; text: string }) => Promise<void>; loading?: boolean }) {
+interface ReviewFormProps {
+  /** Se informado, o formulário entra em modo "edição". */
+  initialValues?: { rating: number; text: string };
+  onSubmit: (data: { rating: number; text: string }) => Promise<void>;
+  loading?: boolean;
+  submitLabel?: string;
+}
+
+export function ReviewForm({
+  initialValues,
+  onSubmit,
+  loading,
+  submitLabel = 'Publicar Avaliação',
+}: ReviewFormProps) {
   const { isAuthenticated } = useAuth();
-  const [rating, setRating] = useState(0);
-  const [text, setText] = useState('');
+  const [rating, setRating] = useState(initialValues?.rating ?? 0);
+  const [text, setText] = useState(initialValues?.text ?? '');
   const [error, setError] = useState('');
 
   if (!isAuthenticated) {
@@ -31,23 +46,32 @@ export function ReviewForm({ onSubmit, loading }: { onSubmit: (data: { rating: n
     e.preventDefault();
     if (rating === 0) { setError('Selecione uma nota de 1 a 5'); return; }
     setError('');
-    try { await onSubmit({ rating, text }); setRating(0); setText(''); }
-    catch (e) {
+    try {
+      await onSubmit({ rating, text });
+      if (!initialValues) {
+        setRating(0);
+        setText('');
+      }
+    } catch (e) {
       const err = e as { userMessage?: string };
-      setError(err.userMessage ?? 'Erro ao publicar avaliação');
+      setError(err.userMessage ?? 'Erro ao salvar avaliação');
     }
   };
 
   return (
     <form onSubmit={submit} className="bg-dark-100 rounded-xl p-6 border border-white/5">
-      <h3 className="text-lg font-semibold text-gray-100 mb-4">Avalie este filme</h3>
+      <h3 className="text-lg font-semibold text-gray-100 mb-4">
+        {initialValues ? 'Editar avaliação' : 'Avalie este filme'}
+      </h3>
       <div className="mb-6">
         <label className="block text-sm font-medium text-gray-400 mb-3">Sua nota</label>
         <Rating value={rating} size="lg" interactive onChange={setRating} />
         {rating > 0 && <p className="text-sm text-gray-500 mt-1">{RATING_LABEL[rating]}</p>}
       </div>
       <div className="mb-6">
-        <label className="block text-sm font-medium text-gray-400 mb-2">Seu comentário <span className="text-gray-600">(opcional)</span></label>
+        <label className="block text-sm font-medium text-gray-400 mb-2">
+          Seu comentário <span className="text-gray-600">(opcional)</span>
+        </label>
         <textarea
           value={text}
           onChange={(e) => setText(e.target.value.slice(0, MAX_CHARS))}
@@ -62,7 +86,9 @@ export function ReviewForm({ onSubmit, loading }: { onSubmit: (data: { rating: n
           <p className="text-red-400 text-sm">{error}</p>
         </div>
       )}
-      <Button type="submit" loading={loading} disabled={rating === 0} className="w-full">Publicar Avaliação</Button>
+      <Button type="submit" loading={loading} disabled={rating === 0} className="w-full">
+        {submitLabel}
+      </Button>
     </form>
   );
 }
